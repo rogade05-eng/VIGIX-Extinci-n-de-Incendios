@@ -26,6 +26,7 @@ pub mod gates;
 pub mod geometry;
 pub mod hash;
 pub mod hydraulics;
+pub mod i18n;
 pub mod issues;
 pub mod json;
 pub mod license;
