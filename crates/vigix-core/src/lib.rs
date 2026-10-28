@@ -16,7 +16,9 @@
 #![allow(clippy::result_large_err)]
 
 pub mod agents;
+pub mod audit;
 pub mod calc;
+pub mod csv;
 pub mod extinguishers;
 pub mod geometry;
 pub mod hash;
@@ -24,6 +26,7 @@ pub mod hydraulics;
 pub mod issues;
 pub mod json;
 pub mod profile;
+pub mod project;
 pub mod reader;
 pub mod timeutil;
 pub mod units;
