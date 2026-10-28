@@ -6,7 +6,7 @@
 //! presentación sujeto a firma y aprobación externa".
 
 use super::pdf::*;
-use super::tables::{self, value_rows};
+use super::tables::{self, decimal_sep, fmt_display, value_rows};
 use super::ExportContext;
 use crate::gates::DocStatus;
 use crate::geometry::{self, Pt};
@@ -26,6 +26,7 @@ pub fn build_pdf(ctx: &ExportContext) -> (Vec<u8>, usize) {
     let l = ctx.lang;
     let system = ctx.project.at("display.unit_system").and_then(Json::as_str).unwrap_or("SI");
     let decimals = ctx.project.at("display.decimals").and_then(Json::as_f64).filter(|d| (0.0..=6.0).contains(d)).unwrap_or(2.0) as u32;
+    let sep = decimal_sep(ctx.project, l);
     let pname = ctx.project.at("meta.name").and_then(Json::as_str).unwrap_or("");
     let fp = crate::project::inputs_fingerprint(ctx.project);
     let (banner, bcolor) = match ctx.gate.status {
@@ -63,7 +64,7 @@ pub fn build_pdf(ctx: &ExportContext) -> (Vec<u8>, usize) {
     lay.spacer(12.0);
     lay.kv_table(&tables::metadata_rows(ctx), 9.0);
     lay.spacer(8.0);
-    lay.paragraph(&format!("{}", cat.tr(l, &format!("status.{}", ctx.gate.status.as_str()))), 12.0, true, bcolor);
+    lay.paragraph(&cat.tr(l, &format!("status.{}", ctx.gate.status.as_str())), 12.0, true, bcolor);
     lay.paragraph(&profile_label, 11.0, true, if ctx.profile.map(|p| p.is_verified()).unwrap_or(false) { GREEN } else { AMBER });
     lay.spacer(6.0);
     lay.paragraph(&tr("app.disclaimer"), 9.0, false, GRAY);
@@ -203,9 +204,9 @@ pub fn build_pdf(ctx: &ExportContext) -> (Vec<u8>, usize) {
     if let Some(env) = ctx.project.at("results.extinguishers") {
         any = true;
         result_header(&mut lay, ctx, "extinguishers", "extinguishers", env);
-        lay.kv_table(&value_rows("extinguishers", env.field("values"), l, system, decimals).into_iter().collect::<Vec<_>>(), 9.0);
+        lay.kv_table(&value_rows("extinguishers", env.field("values"), l, system, decimals, sep).into_iter().collect::<Vec<_>>(), 9.0);
         let zt = &tables::ext_tables(ctx)[0];
-        let rows = zt.text_rows(system, false, decimals);
+        let rows = zt.text_rows(system, false, decimals, sep);
         let shown: Vec<Vec<String>> = rows.iter().take(MAX_ROWS_PDF).cloned().collect();
         lay.table(&zt.headers(l, system, false), &shown, 8.0);
         trunc_note(&mut lay, l, shown.len(), rows.len());
@@ -213,28 +214,26 @@ pub fn build_pdf(ctx: &ExportContext) -> (Vec<u8>, usize) {
     for (label, env) in tables::hydraulic_results(ctx) {
         any = true;
         result_header(&mut lay, ctx, "hydraulic", &label, env);
-        let mut kv = value_rows("hydraulic", env.field("values"), l, system, decimals);
+        let mut kv = value_rows("hydraulic", env.field("values"), l, system, decimals, sep);
         if let Some(sup) = env.at("values.supplies").and_then(|s| s.idx(0)) {
             for (k, canon, role, key) in [
                 ("doc.sum.available", "bar", "pressure", "available_pressure_at_flow_bar"),
                 ("doc.sum.margin", "bar", "pressure", "margin_bar"),
             ] {
                 if let Some(v) = sup.field(key).as_f64() {
-                    kv.push((
-                        tr(k),
-                        format!("{} {}", fmt_num(units::round_half_away(conv(v, canon, role, system), decimals)), unit_label(role, system)),
-                    ));
+                    kv.push((tr(k), format!("{} {}", fmt_display(conv(v, canon, role, system), decimals, sep), unit_label(role, system))));
                 }
             }
         }
         lay.kv_table(&kv, 9.0);
         if env.field("status").as_str() == Some("ok") {
             let (nt, kt) = tables::hydraulic_tables(ctx);
-            for (t, only) in [(&nt, &label), (&kt, &label)] {
+            for (t, only, sub) in [(&nt, &label, "doc.sub.nodes"), (&kt, &label, "doc.sub.links")] {
+                lay.heading(&tr(sub), 3);
                 let rows: Vec<Vec<String>> = t
                     .rows
                     .iter()
-                    .zip(t.text_rows(system, false, decimals))
+                    .zip(t.text_rows(system, false, decimals, sep))
                     .filter(|(r, _)| matches!(&r[0], tables::V::S(s) if s == only))
                     .map(|(_, tx)| tx[1..].to_vec())
                     .collect();
@@ -250,7 +249,7 @@ pub fn build_pdf(ctx: &ExportContext) -> (Vec<u8>, usize) {
             for (sid, env) in m {
                 any = true;
                 result_header(&mut lay, ctx, kind, sid, env);
-                lay.kv_table(&value_rows(kind, env.field("values"), l, system, decimals), 9.0);
+                lay.kv_table(&value_rows(kind, env.field("values"), l, system, decimals, sep), 9.0);
                 if kind == "gas" {
                     let ne: Vec<&str> =
                         env.at("values.not_evaluated").map(Json::items).unwrap_or(&[]).iter().filter_map(Json::as_str).collect();
@@ -267,7 +266,7 @@ pub fn build_pdf(ctx: &ExportContext) -> (Vec<u8>, usize) {
         let t = tables::cause_effect_table(ctx);
         if !t.rows.is_empty() {
             lay.paragraph(&tr("doc.informative_interface"), 8.5, true, AMBER);
-            let rows = t.text_rows(system, true, decimals);
+            let rows = t.text_rows(system, true, decimals, sep);
             lay.table(&t.headers(l, system, true), &rows, 7.5);
         }
     }
@@ -279,7 +278,7 @@ pub fn build_pdf(ctx: &ExportContext) -> (Vec<u8>, usize) {
     if ctx.project.at("budget.lines").map(|x| !x.items().is_empty()).unwrap_or(false) {
         lay.heading(&tr("doc.sec.budget"), 1);
         let t = tables::budget_table(ctx);
-        let rows = t.text_rows(system, true, decimals);
+        let rows = t.text_rows(system, true, decimals, sep);
         lay.table(&t.headers(l, system, true), &rows, 8.0);
     }
 
@@ -292,7 +291,7 @@ pub fn build_pdf(ctx: &ExportContext) -> (Vec<u8>, usize) {
     lay.new_page(A4);
     lay.heading(&tr("doc.sec.issues"), 1);
     let it = tables::issues_table(ctx);
-    let irows = it.text_rows(system, true, decimals);
+    let irows = it.text_rows(system, true, decimals, sep);
     // columnas del PDF: severidad, objeto, mensaje, acción, referencia
     let keep = [0usize, 3, 4, 5, 6];
     let hd: Vec<String> = it.headers(l, system, true).into_iter().enumerate().filter(|(i, _)| keep.contains(i)).map(|(_, h)| h).collect();
@@ -305,7 +304,7 @@ pub fn build_pdf(ctx: &ExportContext) -> (Vec<u8>, usize) {
     trunc_note(&mut lay, l, shown.len(), irows.len());
     lay.heading(&tr("doc.sec.params"), 1);
     let pt = tables::params_table(ctx);
-    let prows = pt.text_rows(system, true, decimals);
+    let prows = pt.text_rows(system, true, decimals, sep);
     if prows.is_empty() {
         lay.paragraph(&tr("doc.none"), 9.0, false, BLACK);
     } else {
@@ -420,7 +419,11 @@ fn trunc_note(lay: &mut Layout, lang: &str, shown: usize, total: usize) {
 fn result_header(lay: &mut Layout, ctx: &ExportContext, kind: &str, label: &str, env: &Json) {
     let cat = catalog();
     let l = ctx.lang;
-    let mut title = format!("{} — {}", cat.tr(l, &format!("res.{}", kind)), label);
+    let mut title = if matches!(kind, "extinguishers" | "cause_effect" | "budget") {
+        cat.tr(l, &format!("res.{}", kind))
+    } else {
+        format!("{} — {}", cat.tr(l, &format!("res.{}", kind)), label)
+    };
     let mut color = BLACK;
     if env.field("status").as_str() != Some("ok") {
         title.push_str(&format!("  [{}]", cat.tr(l, "res.blocked")));
@@ -518,11 +521,10 @@ fn draw_plan(lay: &mut Layout, ctx: &ExportContext, level: &Json) {
             Some("room") if p.len() >= 3 => {
                 let q: Vec<(f64, f64)> = p.iter().map(|v| tx(*v)).collect();
                 lay.pdf.polyline(page, &q, true, 0.5, GRAY, None);
-                let c = [p.iter().map(|v| v[0]).sum::<f64>() / p.len() as f64, p.iter().map(|v| v[1]).sum::<f64>() / p.len() as f64];
-                let (cx, cy) = tx(c);
+                let (min_x, max_y) = (p.iter().map(|v| v[0]).fold(f64::MAX, f64::min), p.iter().map(|v| v[1]).fold(f64::MIN, f64::max));
+                let (cx, cy) = tx([min_x, max_y]);
                 let name = e.field("name").as_str().filter(|n| !n.is_empty()).unwrap_or_else(|| e.field("id").as_str().unwrap_or(""));
-                let tw = text_width(name, 7.0, false);
-                lay.pdf.text(page, cx - tw / 2.0, cy, 7.0, false, GRAY, name);
+                lay.pdf.text(page, cx + 5.0, cy - 11.0, 7.5, true, GRAY, name);
             }
             Some("wall") if p.len() >= 2 => {
                 let q: Vec<(f64, f64)> = p.iter().map(|v| tx(*v)).collect();

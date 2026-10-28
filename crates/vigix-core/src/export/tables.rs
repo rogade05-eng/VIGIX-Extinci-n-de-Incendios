@@ -67,6 +67,44 @@ pub struct Table {
     pub rows: Vec<Vec<V>>,
 }
 
+/// Número para presentación: redondeo mitad-lejos-de-cero a `decimals`; un valor no nulo que el
+/// redondeo dejaría en 0 se muestra en notación científica (p. ej. residuos 2.1e-14); `sep` es el
+/// separador decimal del proyecto.
+pub fn fmt_display(x: f64, decimals: u32, sep: char) -> String {
+    if !x.is_finite() {
+        return String::new();
+    }
+    let r = units::round_half_away(x, decimals);
+    let t = if x != 0.0 && r == 0.0 {
+        let e = format!("{:.2e}", x);
+        let (m, ex) = e.split_once('e').unwrap_or((&e, "0"));
+        let m = m.trim_end_matches('0').trim_end_matches('.');
+        format!("{}e{}", m, ex)
+    } else {
+        fmt_num(r)
+    };
+    if sep == '.' {
+        t
+    } else {
+        t.replace('.', &sep.to_string())
+    }
+}
+
+/// Separador decimal del proyecto (coma por defecto en español, punto en inglés).
+pub fn decimal_sep(project: &Json, lang: &str) -> char {
+    match project.at("display.decimal_separator").and_then(Json::as_str) {
+        Some(",") => ',',
+        Some(".") => '.',
+        _ => {
+            if lang == "en" {
+                '.'
+            } else {
+                ','
+            }
+        }
+    }
+}
+
 /// Etiqueta legible de unidad.
 pub fn pretty_unit(u: &str) -> String {
     match u {
@@ -113,8 +151,10 @@ impl Table {
             .collect()
     }
 
-    /// Texto de cada celda. `canonical = true`: unidades canónicas y todos los dígitos.
-    pub fn text_rows(&self, system: &str, canonical: bool, decimals: u32) -> Vec<Vec<String>> {
+    /// Texto de cada celda. `canonical = true`: unidades canónicas, todos los dígitos y punto decimal
+    /// (datos de intercambio). `canonical = false`: unidades del sistema del proyecto, redondeo a
+    /// `decimals` y separador decimal `sep` (presentación).
+    pub fn text_rows(&self, system: &str, canonical: bool, decimals: u32, sep: char) -> Vec<Vec<String>> {
         self.rows
             .iter()
             .map(|r| {
@@ -126,15 +166,17 @@ impl Table {
                         V::E => String::new(),
                         V::N(n) => {
                             let c = &self.cols[i];
-                            if canonical || c.unit.is_none() {
-                                if c.unit.is_none() && !canonical {
-                                    return fmt_num(units::round_half_away(*n, decimals));
-                                }
+                            if canonical {
                                 return fmt_num(*n);
                             }
-                            let to = display_unit(c, system).unwrap_or_default();
-                            let x = units::convert(*n, c.unit.unwrap_or("-"), &to).unwrap_or(*n);
-                            fmt_num(units::round_half_away(x, decimals))
+                            match c.unit {
+                                None => fmt_display(*n, decimals, sep),
+                                Some(canon) => {
+                                    let to = display_unit(c, system).unwrap_or_default();
+                                    let x = units::convert(*n, canon, &to).unwrap_or(*n);
+                                    fmt_display(x, decimals, sep)
+                                }
+                            }
                         }
                     })
                     .collect()
@@ -163,7 +205,10 @@ impl Table {
 
 // ------------------------------------------------------------------ valores curados por sistema
 /// (clase de resultado, ruta en `values`, unidad canónica, rol de presentación)
-pub const VALUES: &[(&str, &str, Option<(&str, &str)>)] = &[
+/// Valor curado: (clase de resultado, ruta en `values`, (unidad canónica, rol de presentación)).
+pub type ValueSpec = (&'static str, &'static str, Option<(&'static str, &'static str)>);
+
+pub const VALUES: &[ValueSpec] = &[
     ("hydraulic", "summary.total_demand_lpm", Some(("L/min", "flow"))),
     ("hydraulic", "summary.source_flow_lpm", Some(("L/min", "flow"))),
     ("hydraulic", "summary.min_device_pressure_bar", Some(("bar", "pressure"))),
@@ -224,7 +269,7 @@ pub fn value_label_key(kind: &str, path: &str) -> String {
 }
 
 /// Filas (etiqueta, texto) de los valores curados de un resultado almacenado.
-pub fn value_rows(kind: &str, values: &Json, lang: &str, system: &str, decimals: u32) -> Vec<(String, String)> {
+pub fn value_rows(kind: &str, values: &Json, lang: &str, system: &str, decimals: u32, sep: char) -> Vec<(String, String)> {
     let cat = catalog();
     let mut out = Vec::new();
     for (k, path, unit) in VALUES.iter().filter(|v| v.0 == kind) {
@@ -237,9 +282,9 @@ pub fn value_rows(kind: &str, values: &Json, lang: &str, system: &str, decimals:
             (Json::Num(n), Some((canon, role))) => {
                 let to = units::table().display_unit(system, role).map(|(_, u)| u.to_string()).unwrap_or_else(|| canon.to_string());
                 let x = units::convert(*n, canon, &to).unwrap_or(*n);
-                format!("{} {}", fmt_num(units::round_half_away(x, decimals)), pretty_unit(&to))
+                format!("{} {}", fmt_display(x, decimals, sep), pretty_unit(&to))
             }
-            (Json::Num(n), None) => fmt_num(units::round_half_away(*n, decimals.max(3))),
+            (Json::Num(n), None) => fmt_display(*n, decimals.max(3), sep),
             (Json::Str(s), _) => s.clone(),
             (Json::Bool(b), _) => cat.tr(lang, if *b { "doc.yes" } else { "doc.no" }),
             _ => continue,
@@ -307,7 +352,6 @@ pub fn metadata_rows(ctx: &ExportContext) -> Vec<(String, String)> {
     if let Some(a) = ctx.audit_digest {
         v.push((c.tr(l, "doc.meta.audit"), a.to_string()));
     }
-    v.push((c.tr(l, "doc.meta.canonical_units"), String::new()));
     v
 }
 
@@ -317,7 +361,11 @@ pub fn metadata_table(ctx: &ExportContext) -> Table {
         sheet_key: "xl.sheet.metadata".into(),
         title: catalog().tr(ctx.lang, "xl.sheet.metadata"),
         cols: vec![col("doc.col.parameter"), col("doc.col.value")],
-        rows: metadata_rows(ctx).into_iter().map(|(k, v)| vec![V::S(k), V::S(v)]).collect(),
+        rows: metadata_rows(ctx)
+            .into_iter()
+            .chain(std::iter::once((catalog().tr(ctx.lang, "doc.meta.canonical_units"), String::new())))
+            .map(|(k, v)| vec![V::S(k), V::S(v)])
+            .collect(),
     }
 }
 
@@ -453,7 +501,7 @@ pub fn ext_tables(ctx: &ExportContext) -> Vec<Table> {
     if let Some(env) = ctx.project.at("results.extinguishers") {
         for z in env.at("values.zones").map(Json::items).unwrap_or(&[]) {
             for c in z.field("classes").items() {
-                let units: Vec<&str> = c.field("serving_units").items().iter().filter_map(Json::as_str).collect();
+                let units: Vec<&str> = c.field("contributing_units").items().iter().filter_map(Json::as_str).collect();
                 zones.push(vec![
                     V::from_json(z.field("id")),
                     V::from_json(z.field("hazard_class")),
@@ -462,7 +510,7 @@ pub fn ext_tables(ctx: &ExportContext) -> Vec<Table> {
                     V::opt(c.field("max_travel_m").as_f64()),
                     V::opt(c.field("covered_fraction").as_f64().map(|f| f * 100.0)),
                     V::opt(c.field("uncovered_area_m2").as_f64()),
-                    V::B(c.field("ok").as_bool() == Some(true)),
+                    V::S(cat.tr(l, if c.field("ok").as_bool() == Some(true) { "doc.finding_none" } else { "doc.finding_some" })),
                 ]);
             }
         }
@@ -475,9 +523,9 @@ pub fn ext_tables(ctx: &ExportContext) -> Vec<Table> {
             col("doc.col.zone"),
             col("doc.col.hazard"),
             col("doc.col.class"),
-            col("doc.col.units"),
-            colu("doc.col.length", "m", "length"),
-            col("doc.col.covered"),
+            col("doc.col.contributing"),
+            colu("doc.col.max_travel", "m", "length"),
+            col("doc.col.covered_pct"),
             colu("doc.col.uncovered", "m2", "area"),
             col("doc.col.result"),
         ],
@@ -595,7 +643,7 @@ pub fn agent_table(ctx: &ExportContext) -> Table {
     for kind in ["foam", "gas", "dry_chemical", "wet_chemical", "aerosol"] {
         if let Some(m) = ctx.project.at(&format!("results.{}", kind)).and_then(Json::as_obj) {
             for (sid, env) in m {
-                for (label, text) in value_rows(kind, env.field("values"), l, system, decimals) {
+                for (label, text) in value_rows(kind, env.field("values"), l, system, decimals, decimal_sep(ctx.project, l)) {
                     rows.push(vec![V::s(cat.tr(l, &format!("res.{}", kind))), V::s(sid.as_str()), V::s(label), V::S(text)]);
                 }
             }

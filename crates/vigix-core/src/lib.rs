@@ -16,6 +16,7 @@
 #![allow(clippy::result_large_err)]
 
 pub mod agents;
+pub mod api;
 pub mod audit;
 pub mod budget;
 pub mod calc;

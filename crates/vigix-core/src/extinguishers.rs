@@ -664,8 +664,29 @@ pub fn run(project: &Json, profile: &Profile, suggest: Option<&Json>) -> CalcOut
                         }
                     }
                 }
-                let sources: Vec<(usize, usize)> = serving.iter().filter_map(|u| snapped.get(&u.id).copied()).collect();
-                let dist = grid.dijkstra(&sources, req.max_travel.value);
+                // Unidades que realmente aportan: las que alcanzan al menos una celda de la zona dentro de la
+                // distancia de recorrido (hasta 64 unidades se evalúan una por una; si hay más, se usa una
+                // sola propagación multifuente y se listan todas las aptas).
+                let srcs: Vec<(&&Unit, (usize, usize))> = serving.iter().filter_map(|u| snapped.get(&u.id).map(|c| (u, *c))).collect();
+                let mut contributing: Vec<&Unit> = Vec::new();
+                let dist: Vec<f64> = if srcs.len() <= 64 {
+                    let mut best = vec![f64::INFINITY; grid.nx * grid.ny];
+                    for (u, c) in &srcs {
+                        let d = grid.dijkstra(&[*c], req.max_travel.value);
+                        if cells.iter().any(|&(i, j)| d[j * grid.nx + i].is_finite()) {
+                            contributing.push(u);
+                        }
+                        for (b, x) in best.iter_mut().zip(d.iter()) {
+                            if *x < *b {
+                                *b = *x;
+                            }
+                        }
+                    }
+                    best
+                } else {
+                    contributing = srcs.iter().map(|(u, _)| **u).collect();
+                    grid.dijkstra(&srcs.iter().map(|(_, c)| *c).collect::<Vec<_>>(), req.max_travel.value)
+                };
                 let mut covered = 0usize;
                 let mut uncovered_cells: Vec<(usize, usize)> = Vec::new();
                 for &(i, j) in &cells {
@@ -770,6 +791,7 @@ pub fn run(project: &Json, profile: &Profile, suggest: Option<&Json>) -> CalcOut
                         .with("max_travel_m", Json::num(req.max_travel.value))
                         .with("min_rating", Json::opt_num(req.min_rating.as_ref().map(|p| p.value)))
                         .with("serving_units", Json::Arr(serving.iter().map(|u| Json::str(u.id.as_str())).collect()))
+                        .with("contributing_units", Json::Arr(contributing.iter().map(|u| Json::str(u.id.as_str())).collect()))
                         .with("zone_cells", Json::num(cells.len() as f64))
                         .with("covered_fraction", Json::num(frac))
                         .with("uncovered_area_m2", Json::num(unc_area))
@@ -780,7 +802,7 @@ pub fn run(project: &Json, profile: &Profile, suggest: Option<&Json>) -> CalcOut
                 if !ok {
                     zone_ok = false;
                 }
-                for u in &serving {
+                for u in &contributing {
                     let e = units_json
                         .entry(u.id.clone())
                         .or_insert_with(|| Json::obj().with("id", Json::str(u.id.as_str())).with("serves", Json::arr()));

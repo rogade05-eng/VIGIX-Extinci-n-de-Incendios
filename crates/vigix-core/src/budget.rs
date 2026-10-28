@@ -66,14 +66,14 @@ impl Dec {
         Dec::parse(&format!("{}", x))
     }
 
-    pub fn add(self, o: Dec) -> Dec {
+    pub fn plus(self, o: Dec) -> Dec {
         Dec(self.0 + o.0)
     }
-    pub fn sub(self, o: Dec) -> Dec {
+    pub fn minus(self, o: Dec) -> Dec {
         Dec(self.0 - o.0)
     }
     /// Producto con redondeo mitad-lejos-de-cero a 6 decimales.
-    pub fn mul(self, o: Dec) -> Dec {
+    pub fn times(self, o: Dec) -> Dec {
         let p = self.0 * o.0;
         let half = Dec::SCALE / 2;
         Dec(if p >= 0 { (p + half) / Dec::SCALE } else { (p - half) / Dec::SCALE })
@@ -571,11 +571,11 @@ pub fn compute(project: &Json, catalog: &[CatalogItem]) -> CalcOutput {
                     );
                     continue;
                 }
-                let total = qty.mul(p).round_dp(dp);
-                subtotal = subtotal.add(total);
+                let total = qty.times(p).round_dp(dp);
+                subtotal = subtotal.plus(total);
                 components.push(id.to_string());
                 let e = by_cat.entry(category.clone()).or_insert((Dec::ZERO, vec![]));
-                e.0 = e.0.add(total);
+                e.0 = e.0.plus(total);
                 e.1.push(id.to_string());
                 o.set("unit_price", Json::str(p.fmt(6).trim_end_matches('0').trim_end_matches('.')));
                 o.set("total", Json::str(total.fmt(dp)));
@@ -616,8 +616,8 @@ pub fn compute(project: &Json, catalog: &[CatalogItem]) -> CalcOutput {
             issues.push(Issue::block("data.missing").module(MODULE).path(&format!("budget.taxes.{}", i)).param("field", "name/rate_pct"));
             continue;
         };
-        let amount = subtotal.mul(rate).mul(Dec(Dec::SCALE / 100)).round_dp(dp);
-        taxes_total = taxes_total.add(amount);
+        let amount = subtotal.times(rate).times(Dec(Dec::SCALE / 100)).round_dp(dp);
+        taxes_total = taxes_total.plus(amount);
         taxes_json.push(
             Json::obj()
                 .with("name", Json::str(name))
@@ -654,7 +654,7 @@ pub fn compute(project: &Json, catalog: &[CatalogItem]) -> CalcOutput {
                 .with("lines", Json::Arr(ls.iter().map(|x| Json::str(x.as_str())).collect()))
         })
         .collect();
-    let total = subtotal.add(taxes_total);
+    let total = subtotal.plus(taxes_total);
     let values = Json::obj()
         .with("currency", Json::opt_str(currency.as_deref()))
         .with("decimals", Json::num(dp as f64))
@@ -677,13 +677,13 @@ mod tests {
     #[test]
     fn decimal_exacto_sin_error_binario() {
         // 0.1 + 0.2 en f64 no es 0.3; en Dec sí
-        assert_eq!(Dec::parse("0.1").unwrap().add(Dec::parse("0.2").unwrap()), Dec::parse("0.3").unwrap());
+        assert_eq!(Dec::parse("0.1").unwrap().plus(Dec::parse("0.2").unwrap()), Dec::parse("0.3").unwrap());
         assert_eq!(Dec::parse("12,5").unwrap(), Dec::parse("12.5").unwrap());
         assert_eq!(Dec::parse("-0.25").unwrap().fmt(2), "-0.25");
         assert_eq!(Dec::parse("1.005").unwrap().round_dp(2).fmt(2), "1.01");
         assert_eq!(Dec::parse("-1.005").unwrap().round_dp(2).fmt(2), "-1.01");
         assert_eq!(Dec::parse("2.5").unwrap().round_dp(0).fmt(0), "3");
-        assert_eq!(Dec::parse("19.99").unwrap().mul(Dec::parse("3").unwrap()).fmt(2), "59.97");
+        assert_eq!(Dec::parse("19.99").unwrap().times(Dec::parse("3").unwrap()).fmt(2), "59.97");
         assert_eq!(Dec::from_f64(0.1 + 0.2).unwrap().round_dp(2).fmt(2), "0.30");
         for bad in ["", "abc", "1.2.3", "1,234.50", "12 5", "--1", "1e5", "."] {
             assert!(Dec::parse(bad).is_none(), "{:?}", bad);

@@ -5,6 +5,9 @@
 //!   y se **cuentan** para informarlo (contrato 9.2: contenido omitido o simplificado).
 //! * Determinista: sin fecha de creación incrustada ni identificadores aleatorios.
 
+// Las primitivas de dibujo (página, coordenadas, grosor, color...) tienen naturalmente muchos parámetros.
+#![allow(clippy::too_many_arguments)]
+
 use std::fmt::Write as _;
 
 pub type Rgb = (f64, f64, f64);
@@ -315,9 +318,9 @@ impl Pdf {
             s.push_str(&color_op(f, false));
         }
         s.push_str(&color_op(color, true));
-        let _ = write!(
+        let _ = writeln!(
             s,
-            "{} w {} {} m {} {} {} {} {} {} c {} {} {} {} {} {} c {} {} {} {} {} {} c {} {} {} {} {} {} c {}\n",
+            "{} w {} {} m {} {} {} {} {} {} c {} {} {} {} {} {} c {} {} {} {} {} {} c {} {} {} {} {} {} c {}",
             fnum(width),
             fnum(cx + r),
             fnum(cy),
@@ -678,29 +681,65 @@ impl Layout {
             let banner = self.frame.banner.clone();
             self.pdf.rect(p, 0.0, h - bh, w, bh, None, Some(c));
             let bs = if text_width(&banner, 9.5, true) > w - 30.0 { 7.5 } else { 9.5 };
+            let banner = fit_text(&banner, bs, w - 30.0, true);
             let tw = text_width(&banner, bs, true);
             self.pdf.text(p, ((w - tw) / 2.0).max(8.0), h - bh + 7.0, bs, true, WHITE, &banner);
-            // pie
+            // pie: el texto izquierdo se recorta para no pisar la numeración
             self.pdf.line(p, self.margin, self.margin + 16.0, w - self.margin, self.margin + 16.0, 0.4, GRAY);
-            let fl = self.frame.footer_left.clone();
-            self.pdf.text(p, self.margin, self.margin + 5.0, 7.5, false, GRAY, &fl);
             let pg = format!("{} {} {} {}", self.frame.page_word, p + 1, self.frame.of_word, total);
             let pw = text_width(&pg, 8.0, false);
+            let fl = fit_text(&self.frame.footer_left.clone(), 7.5, (w - 2.0 * self.margin) - pw - 14.0, false);
+            self.pdf.text(p, self.margin, self.margin + 5.0, 7.5, false, GRAY, &fl);
             self.pdf.text(p, w - self.margin - pw, self.margin + 5.0, 8.0, false, GRAY, &pg);
-            // marcas de agua (detrás del contenido)
+            // marcas de agua (detrás del contenido), centradas y contenidas en la página
             if let Some(m) = self.frame.eval_mark.clone() {
-                let size = 54.0;
-                self.pdf.prepend_text_rotated(p, w * 0.14, h * 0.22, size, 35.0, (0.9, 0.9, 0.9), &m);
+                self.watermark(p, &m, 44.0, (0.91, 0.91, 0.91), 0.5, 0.36);
             }
             if let Some((m, col)) = self.frame.watermark.clone() {
-                let size = 70.0;
                 let light = (1.0 - (1.0 - col.0) * 0.18, 1.0 - (1.0 - col.1) * 0.18, 1.0 - (1.0 - col.2) * 0.18);
-                self.pdf.prepend_text_rotated(p, w * 0.12, h * 0.38, size, 35.0, light, &m);
+                self.watermark(p, &m, 84.0, light, 0.5, 0.58);
             }
         }
         let replaced = self.pdf.replaced_chars;
         (self.pdf.finish(title, producer, subject, keywords), replaced)
     }
+
+    /// Texto diagonal (35°) centrado en (`fx`,`fy`) como fracción de la página; reduce el cuerpo hasta
+    /// que cabe en el 80 % del ancho y el 55 % del alto.
+    fn watermark(&mut self, p: usize, text: &str, max_size: f64, color: Rgb, fx: f64, fy: f64) {
+        let (w, h) = self.pdf.page_size(p);
+        let ang = 35.0f64;
+        let (c, s) = (ang.to_radians().cos(), ang.to_radians().sin());
+        let mut size = max_size;
+        loop {
+            let tw = text_width(text, size, true);
+            if (tw * c + size * s <= w * 0.8 && tw * s + size * c <= h * 0.55) || size <= 12.0 {
+                break;
+            }
+            size -= 2.0;
+        }
+        let tw = text_width(text, size, true);
+        // el punto de anclaje es el inicio de la línea base: se retrocede medio texto y se baja medio cuerpo
+        let x = w * fx - (tw / 2.0) * c + (size * 0.33) * s;
+        let y = h * fy - (tw / 2.0) * s - (size * 0.33) * c;
+        self.pdf.prepend_text_rotated(p, x, y, size, ang, color, text);
+    }
+}
+
+/// Recorta `s` con puntos suspensivos para que quepa en `max_w` puntos.
+pub fn fit_text(s: &str, size: f64, max_w: f64, bold: bool) -> String {
+    if text_width(s, size, bold) <= max_w {
+        return s.to_string();
+    }
+    let mut out: Vec<char> = s.chars().collect();
+    while !out.is_empty() {
+        out.pop();
+        let cand: String = out.iter().collect::<String>() + "...";
+        if text_width(&cand, size, bold) <= max_w {
+            return cand;
+        }
+    }
+    String::new()
 }
 
 #[cfg(test)]
@@ -770,11 +809,20 @@ mod tests {
         assert!(pages >= 3, "120 filas deben ocupar varias páginas: {}", pages);
         assert!(txt.contains(&format!("/Count {}", pages)));
         // el banner y la numeración están en cada página
-        assert_eq!(txt.matches("Tj ET").count() > pages * 2, true);
+        assert!(txt.matches("Tj ET").count() > pages * 2);
         // xref coherente: el offset de startxref apunta a "xref"
         let sx = txt.rfind("startxref").unwrap();
         let off: usize = txt[sx + 10..].lines().next().unwrap().trim().parse().unwrap();
         assert_eq!(&pdf[off..off + 4], b"xref");
+    }
+
+    #[test]
+    fn el_texto_largo_se_recorta_y_cabe() {
+        let t = "VIGIX EXTINCIÓN FIJA | Edificio de ejemplo (DEMOSTRACIÓN — datos ficticios) | PERFIL DE DEMOSTRACIÓN — VALORES FICTICIOS, NO NORMATIVO";
+        let r = fit_text(t, 7.5, 300.0, false);
+        assert!(text_width(&r, 7.5, false) <= 300.0 && r.ends_with("..."), "{}", r);
+        assert_eq!(fit_text("corto", 7.5, 300.0, false), "corto");
+        assert_eq!(fit_text("x", 7.5, 0.5, false), "");
     }
 
     #[test]

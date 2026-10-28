@@ -125,7 +125,7 @@ pub fn export_csv_zip(ctx: &ExportContext) -> ExportFile {
     let _ = (system, decimals);
     for t in tables::all_tables(ctx) {
         let mut rows: Vec<Vec<String>> = vec![t.headers(ctx.lang, "SI", true)];
-        rows.extend(t.text_rows("SI", true, 6));
+        rows.extend(t.text_rows("SI", true, 6, '.'));
         let text = format!("\u{feff}{}", csv::write(&rows, ',', true));
         let name = format!("{}.csv", t.id);
         manifest_files.push((name.clone(), text.len(), sha256_hex(text.as_bytes())));

@@ -108,6 +108,19 @@ fn punto_de_operacion_coincide_con_la_referencia_analitica() {
 }
 
 #[test]
+fn el_ramal_ciego_informa_flujo_cero_y_no_ruido_numerico() {
+    // J -> X es un ramal sin carga: el flujo físico es 0 y así debe informarse
+    let nodes = r#",{"id":"X","kind":"junction","elevation_m":0}"#;
+    let links = r#",{"id":"PX","kind":"pipe","from":"J","to":"X","length_m":5,"diameter_mm":40,"c_factor":120,"fittings":[]}"#;
+    let out = run(&net(0.0, links, nodes), "SC1", Mode::OperatingPoint, &demo(), None);
+    assert_eq!(out.status, Status::Ok, "{:?}", out.issues);
+    let px = link(&out.values, "PX");
+    assert_eq!(val(px, "flow_lpm"), 0.0);
+    assert_eq!(val(px, "velocity_m_s"), 0.0);
+    assert_eq!(val(px, "headloss_bar"), 0.0);
+}
+
+#[test]
 fn resultado_trae_trazabilidad_completa() {
     let out = run(&net(3.0, "", ""), "SC1", Mode::OperatingPoint, &demo(), None);
     assert_eq!(out.fingerprint.len(), 64);

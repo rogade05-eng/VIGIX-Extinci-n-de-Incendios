@@ -183,8 +183,8 @@ mod tests {
 
     #[test]
     fn todo_codigo_de_incidencia_del_codigo_fuente_tiene_traduccion() {
-        // Recorre los fuentes (incluidos en el binario de pruebas) y comprueba que cada código
-        // emitido tiene mensaje y acción en ambos idiomas.
+        // Recorre los fuentes de producción y comprueba que cada código emitido (incidencias y errores
+        // de API) tiene mensaje y acción en ambos idiomas.
         let sources = [
             include_str!("agents/aerosol.rs"),
             include_str!("agents/dry_chem.rs"),
@@ -192,60 +192,59 @@ mod tests {
             include_str!("agents/gas.rs"),
             include_str!("agents/mod.rs"),
             include_str!("agents/wet_chem.rs"),
+            include_str!("api.rs"),
             include_str!("audit.rs"),
             include_str!("budget.rs"),
             include_str!("cause_effect.rs"),
             include_str!("extinguishers.rs"),
             include_str!("gates.rs"),
             include_str!("hydraulics/model.rs"),
+            include_str!("license.rs"),
             include_str!("permissions.rs"),
             include_str!("profile.rs"),
             include_str!("project.rs"),
             include_str!("reader.rs"),
+            include_str!("selftest.rs"),
             include_str!("store.rs"),
-            include_str!("license.rs"),
         ];
-        let prefixes = [
-            "data.", "ext.", "hyd.", "drychem.", "kitchen.", "aerosol.", "ce.", "geo.", "project.", "profile.", "gate.", "safety.",
-            "budget.", "catalog.", "auth.", "license.", "store.", "foam.", "gas.",
+        let markers = [
+            "Issue::block(",
+            "Issue::error(",
+            "Issue::warning(",
+            "Issue::info(",
+            "Issue::pass(",
+            "blk(",
+            "inv(&mut issues, ",
+            "ApiError::new(",
         ];
         let c = catalog();
         let mut checked = 0;
         for src in sources {
             let prod = src.split("#[cfg(test)]").next().unwrap_or(src);
-            for line_part in prod.split("Issue::").skip(1).chain(prod.split("blk(").skip(1)).chain(prod.split("inv(&mut issues, ").skip(1))
-            {
-                let Some(rest) = line_part.strip_prefix(|c: char| c.is_ascii_alphabetic() || c == '(').map(|_| line_part) else { continue };
-                // localizar el primer literal "xxx.yyy" tras el constructor
-                let Some(q0) = rest.find('"') else { continue };
-                let Some(q1) = rest[q0 + 1..].find('"') else { continue };
-                let code = &rest[q0 + 1..q0 + 1 + q1];
-                if q0 > 40
-                    || !prefixes.iter().any(|p| code.starts_with(p))
-                    || code.contains(' ')
-                    || !code.chars().all(|ch| ch.is_ascii_lowercase() || ch == '.' || ch == '_' || ch.is_ascii_digit())
-                {
-                    continue;
+            for m in markers {
+                for (pos, _) in prod.match_indices(m) {
+                    let after = prod[pos + m.len()..].trim_start();
+                    let Some(rest) = after.strip_prefix('"') else { continue };
+                    let Some(end) = rest.find('"') else { continue };
+                    let code = &rest[..end];
+                    // solo códigos con forma `modulo.nombre` (se descartan formatos como "{}.x")
+                    if !code.contains('.')
+                        || !code.chars().all(|ch| ch.is_ascii_lowercase() || ch == '.' || ch == '_' || ch.is_ascii_digit())
+                    {
+                        continue;
+                    }
+                    for lang in ["es", "en"] {
+                        assert!(c.has(lang, &format!("issue.{}", code)), "falta issue.{} en {}", code, lang);
+                        assert!(c.has(lang, &format!("issue.{}.action", code)), "falta issue.{}.action en {}", code, lang);
+                    }
+                    checked += 1;
                 }
-                // descartar nombres de campos/tablas del perfil que comparten prefijo (p. ej. foam.reserve_factor)
-                let is_issue_ctor = line_part.starts_with("block(")
-                    || line_part.starts_with("error(")
-                    || line_part.starts_with("warning(")
-                    || line_part.starts_with("info(")
-                    || line_part.starts_with("pass(")
-                    || line_part.starts_with("new(")
-                    || line_part.starts_with('"')
-                    || line_part.starts_with("mut ");
-                if !is_issue_ctor && !line_part.starts_with('"') {
-                    continue;
-                }
-                for lang in ["es", "en"] {
-                    assert!(c.has(lang, &format!("issue.{}", code)), "falta issue.{} en {}", code, lang);
-                    assert!(c.has(lang, &format!("issue.{}.action", code)), "falta issue.{}.action en {}", code, lang);
-                }
-                checked += 1;
             }
         }
-        assert!(checked > 100, "la comprobación debía cubrir > 100 códigos (cubrió {})", checked);
+        // códigos formados con format!("{}.predischarge_alarm_missing", prefijo)
+        for code in ["safety.predischarge_alarm_missing", "safety.evacuation_not_verified"] {
+            assert!(c.has("es", &format!("issue.{}", code)) && c.has("en", &format!("issue.{}", code)));
+        }
+        assert!(checked > 150, "la comprobación debía cubrir > 150 códigos (cubrió {})", checked);
     }
 }

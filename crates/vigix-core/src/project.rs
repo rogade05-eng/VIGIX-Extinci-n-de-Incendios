@@ -166,6 +166,11 @@ pub fn validate(p: &Json) -> IssueList {
     if !matches!(p.at("display.unit_system").and_then(Json::as_str), Some("SI") | Some("US")) {
         out.push(Issue::error("project.bad_unit_system").module(MODULE).path("display.unit_system"));
     }
+    if let Some(d) = p.at("display.decimal_separator") {
+        if !matches!(d.as_str(), Some(",") | Some(".")) {
+            out.push(Issue::error("project.bad_decimal_separator").module(MODULE).path("display.decimal_separator"));
+        }
+    }
     if !matches!(p.at("display.language").and_then(Json::as_str), Some("es") | Some("en")) {
         out.push(Issue::error("project.bad_language").module(MODULE).path("display.language"));
     }

@@ -1274,9 +1274,14 @@ pub fn run(network: &Json, scenario_id: &str, mode: Mode, profile: &Profile, can
             .with("c_factor", if l.c > 0.0 { Json::num(l.c) } else { Json::Null });
         match built.slink[k] {
             Some(sk) => {
-                let q = sol.flow_lpm[sk];
+                // Un caudal por debajo del umbral de linealización del solver (Q_LIN) es "sin flujo"
+                // (ramal ciego): se informa 0 en vez de arrastrar residuos numéricos del orden de 1e-7.
+                let q_raw = sol.flow_lpm[sk];
                 let nl = &built.net.links[sk];
-                let dh = sol.head_bar[nl.from] - sol.head_bar[nl.to];
+                let negligible = sol.link_open[sk] && q_raw.abs() < solver::Q_LIN;
+                let q = if negligible { 0.0 } else { q_raw };
+                let dh_raw = sol.head_bar[nl.from] - sol.head_bar[nl.to];
+                let dh = if negligible { 0.0 } else { dh_raw };
                 o.set("flow_lpm", Json::num(q));
                 o.set("open", Json::Bool(sol.link_open[sk]));
                 o.set("headloss_bar", Json::num(dh));

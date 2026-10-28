@@ -112,6 +112,9 @@ pub trait Store: Send {
 }
 
 // ============================================================================ memoria
+/// Copia en memoria: (proyectos, ajustes, perfiles).
+type Snapshot = (BTreeMap<String, String>, BTreeMap<String, String>, BTreeMap<String, String>);
+
 #[derive(Default)]
 pub struct MemStore {
     projects: BTreeMap<String, String>,
@@ -119,7 +122,7 @@ pub struct MemStore {
     audit: Vec<Entry>,
     settings: BTreeMap<String, String>,
     profiles: BTreeMap<String, String>,
-    backups: BTreeMap<String, (BTreeMap<String, String>, BTreeMap<String, String>, BTreeMap<String, String>)>,
+    backups: BTreeMap<String, Snapshot>,
 }
 
 impl MemStore {
@@ -458,7 +461,7 @@ mod tests {
             "vigix-test-{}-{}-{}",
             name,
             std::process::id(),
-            crate::hash::sha256_hex(name.as_bytes())[..8].to_string()
+            &crate::hash::sha256_hex(name.as_bytes())[..8]
         ));
         let _ = fs::remove_dir_all(&d);
         d

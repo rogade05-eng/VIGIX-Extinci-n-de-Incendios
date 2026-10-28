@@ -177,6 +177,137 @@ T["aerosol.design_factor"] = rows_table(["hazard_class"], "-", [
     {"hazard_class": h, "value": v, "ref": REF} for h, v in zip(HAZ, [1.0, 1.1, 1.2])])
 
 
+# ---------------------------------------------------------------------------------------------
+# Casos de prueba INDEPENDIENTES: los resultados esperados se calculan aquí, en Python, con las
+# fórmulas escritas de nuevo (sin usar el motor Rust). Si el motor y este script divergen, el
+# autotest del perfil falla y el perfil deja de considerarse verificado.
+import math
+
+
+def hw_r(length, d_mm, c):
+    return 605000.0 * length / (c ** 1.85 * d_mm ** 4.87)
+
+
+def hyd_case():
+    gamma = 1000.0 * 9.80665 / 1e5
+    z = 3.0
+    r1, r2 = hw_r(30, 65, 120), hw_r(10, 40, 120)
+
+    def f(q):
+        p_sup = 6.0 - (6.0 - 4.0) * (q / 1000.0) ** 1.85
+        p_dev = p_sup - r1 * q ** 1.85 - r2 * (q / 2.0) ** 1.85 - gamma * z
+        qd = 80.0 * math.sqrt(p_dev) if p_dev > 0 else 0.0
+        return 2.0 * qd - q
+    lo, hi = 0.0, 5000.0
+    for _ in range(300):
+        mid = 0.5 * (lo + hi)
+        lo, hi = (mid, hi) if f(mid) > 0 else (lo, mid)
+    q = 0.5 * (lo + hi)
+    net = {
+        "id": "NET1", "system_type": "wet_pipe_sprinkler",
+        "nodes": [
+            {"id": "SUP", "kind": "supply", "elevation_m": 0, "static_pressure_bar": 6.0, "residual_pressure_bar": 4.0, "test_flow_lpm": 1000},
+            {"id": "J", "kind": "junction", "elevation_m": 0},
+            {"id": "S1", "kind": "sprinkler", "elevation_m": z, "k_lpm_bar05": 80, "coverage_area_m2": 12, "min_pressure_bar": 0.5},
+            {"id": "S2", "kind": "sprinkler", "elevation_m": z, "k_lpm_bar05": 80, "coverage_area_m2": 12, "min_pressure_bar": 0.5}],
+        "links": [
+            {"id": "P1", "kind": "pipe", "from": "SUP", "to": "J", "length_m": 30, "diameter_mm": 65, "c_factor": 120, "fittings": []},
+            {"id": "P2", "kind": "pipe", "from": "J", "to": "S1", "length_m": 10, "diameter_mm": 40, "c_factor": 120, "fittings": []},
+            {"id": "P3", "kind": "pipe", "from": "J", "to": "S2", "length_m": 10, "diameter_mm": 40, "c_factor": 120, "fittings": []}],
+        "scenarios": [{"id": "SC1", "name": "Ambos", "active_devices": ["S1", "S2"]}],
+    }
+    return {
+        "id": "HYD-001", "system": "wet_pipe_sprinkler", "module": "hydraulic",
+        "input": {"network": net, "scenario": "SC1", "mode": "operating_point"},
+        "expected": [
+            {"path": "values.summary.total_demand_lpm", "value": q, "tolerance_rel": 1e-6},
+            {"path": "values.convergence.converged", "equals": True},
+        ],
+        "source": "Independiente: ecuación escalar resuelta por bisección en Python (scripts/generar_perfil_demo.py)",
+    }
+
+
+def foam_cases():
+    sysj = {"id": "FM1", "method": "surface_application", "hazard_class": "demo_high", "application": "bund",
+            "concentrate": {"type": "demo_afff", "proportion_pct": 3}, "area_m2": 50}
+    q = 4.0 * 50
+    c1 = {"id": "FOAM-001", "system": "foam", "module": "foam", "input": {"system": sysj}, "expected": [
+        {"path": "values.flows.solution_lpm", "value": q, "tolerance_rel": 1e-9},
+        {"path": "values.flows.concentrate_lpm", "value": q * 0.03, "tolerance_rel": 1e-9},
+        {"path": "values.volumes.concentrate_stored_l", "value": q * 0.03 * 15 * 1.2, "tolerance_rel": 1e-9}],
+        "source": "Independiente: aritmética directa"}
+    he = {"id": "FM2", "method": "high_expansion_flooding", "hazard_class": "demo_high", "enclosure_volume_m3": 600,
+          "sprinklers_present": True, "sprinkler_breakdown_m3_min": 10,
+          "generator": {"foam_output_m3_min": 120, "expansion_ratio": 500}, "concentrate": {"type": "demo_afff", "proportion_pct": 2}}
+    r = (600 / 3 + 10) * 1.15 * 1.2
+    c2 = {"id": "FOAM-002", "system": "foam", "module": "foam", "input": {"system": he}, "expected": [
+        {"path": "values.foam_discharge_m3_min", "value": r, "tolerance_rel": 1e-9},
+        {"path": "values.generators_required", "value": math.ceil(r / 120), "tolerance_abs": 0},
+        {"path": "values.volumes.concentrate_stored_l", "value": r * 1000 / 500 * 0.02 * 12 * 1.2, "tolerance_rel": 1e-9}],
+        "source": "Independiente: aritmética directa"}
+    return [c1, c2]
+
+
+def gas_cases():
+    base = {"hazard_class": "demo_medium", "occupied": False, "discharge_time_s": 10,
+            "enclosure": {"volume_m3": 200, "min_temperature_c": 20, "altitude_m": 100}}
+    s1 = dict(base, id="G1", family="clean_agent", agent="demo_halocarbon", design_concentration_pct=8.5,
+              cylinder={"max_fill_kg": 60, "min_fill_kg": 20}, hold_time_min=12)
+    s = 0.15 + 0.0006 * 20
+    w = (200 / s) * (8.5 / 91.5)
+    s2 = dict(base, id="G2", family="inert", agent="demo_inert", design_concentration_pct=40, discharge_time_s=50,
+              enclosure={"volume_m3": 300, "min_temperature_c": 15, "altitude_m": 600}, cylinder={"gas_volume_m3": 12})
+    si = 0.65 + 0.0024 * 15
+    vgas = 300 * (0.70 / si) * math.log(100 / 60) * 0.95
+    s3 = dict(base, id="G3", family="co2", hazard_class="demo_high", material="demo_material_x", discharge_time_s=45,
+              enclosure={"volume_m3": 150, "min_temperature_c": 20, "altitude_m": 0}, cylinder={"max_fill_kg": 45, "min_fill_kg": 30})
+    return [
+        {"id": "GAS-001", "system": "gas_clean_agent", "module": "gas", "input": {"system": s1}, "expected": [
+            {"path": "values.agent_mass_kg", "value": w, "tolerance_rel": 1e-9}, {"path": "values.cylinders.count", "value": math.ceil(w / 60), "tolerance_abs": 0}],
+         "source": "Independiente: W = (V/S)*C/(100-C), S = k1 + k2*T"},
+        {"id": "GAS-002", "system": "gas_inert", "module": "gas", "input": {"system": s2}, "expected": [
+            {"path": "values.gas_volume_reference_m3", "value": vgas, "tolerance_rel": 1e-9}],
+         "source": "Independiente: V_gas = V*(Vs/S)*ln(100/(100-C))*Ca"},
+        {"id": "GAS-003", "system": "gas_co2", "module": "gas", "input": {"system": s3}, "expected": [
+            {"path": "values.agent_mass_kg", "value": 150 * 1.0 * 1.3, "tolerance_rel": 1e-9}],
+         "source": "Independiente: W = V*FF*MCF"},
+    ]
+
+
+def other_cases():
+    dc = {"id": "DC1", "mode": "total_flooding", "agent": "demo_powder", "hazard_class": "demo_medium", "occupied": False,
+          "discharge_time_s": 25, "enclosure": {"volume_m3": 120, "open_area_m2": 2}, "nozzles": {"count": 4, "flow_kg_s": 1.5},
+          "cylinder": {"capacity_kg": 45}}
+    kit = {"id": "K1", "listing_ref": "Listado de demostración", "tank": {"max_flow_numbers": 12},
+           "appliances": [{"id": "A1", "type": "fryer", "area_m2": 0.9, "nozzle": {"coverage_area_m2": 0.5, "flow_number": 1}, "nozzle_count": 2},
+                          {"id": "A2", "type": "griddle", "area_m2": 0.6, "nozzle": {"coverage_area_m2": 0.6, "flow_number": 2}, "nozzle_count": 1}],
+           "plenum": {"required_nozzles": 1, "nozzle_count": 1, "flow_number_each": 2},
+           "duct": {"required_nozzles": 1, "nozzle_count": 1, "flow_number_each": 2}, "fuel_shutoff": {"provided": True}}
+    ae = {"id": "AE1", "hazard_class": "demo_high", "occupied": False, "actual_clearance_m": 1.5, "enclosure": {"volume_m3": 90},
+          "product": {"design_density_g_m3": 100, "unit_mass_g": 2500, "max_volume_per_unit_m3": 40, "min_clearance_m": 1.0, "listing_ref": "Listado de demostración"}}
+    room = {"id": "R1", "type": "room", "pts": [[0, 0], [6, 0], [6, 6], [0, 6]], "hazard_class": "demo_low", "fire_classes": ["A"]}
+    proj = {"site": {"levels": [{"id": "L1", "entities": [room]}]},
+            "systems": {"extinguishers": {"analysis": {"grid_m": 0.25}, "units": [
+                {"id": "E1", "level": "L1", "x": 3, "y": 3, "agent": "water", "ratings": {"A": 5}}]}}}
+    return [
+        {"id": "DRY-001", "system": "dry_chemical", "module": "dry_chemical", "input": {"system": dc}, "expected": [
+            {"path": "values.agent_mass_kg", "value": 120 * 0.65 + 2 * 5.0, "tolerance_rel": 1e-9}, {"path": "values.cylinders_required", "value": 2, "tolerance_abs": 0}],
+         "source": "Independiente: W = V*tasa + A*factor"},
+        {"id": "KIT-001", "system": "wet_chemical_kitchen", "module": "wet_chemical", "input": {"system": kit}, "expected": [
+            {"path": "values.total_flow_numbers", "value": 2 * 1 + 1 * 2 + 2 + 2, "tolerance_abs": 0}],
+         "source": "Independiente: suma de números de flujo"},
+        {"id": "AER-001", "system": "condensed_aerosol", "module": "aerosol", "input": {"system": ae}, "expected": [
+            {"path": "values.agent_mass_g", "value": 90 * 100 * 1.2, "tolerance_rel": 1e-9}, {"path": "values.units_required", "value": 5, "tolerance_abs": 0}],
+         "source": "Independiente: m = V*densidad*factor"},
+        {"id": "EXT-001", "system": "portable_extinguishers", "module": "extinguishers", "input": {"project": proj}, "expected": [
+            {"path": "values.summary.uncovered_area_total_m2", "value": 0, "tolerance_abs": 1e-9}, {"path": "values.summary.zones_ok", "value": 1, "tolerance_abs": 0}],
+         "source": "Independiente: sala 6x6 con la unidad en el centro; el punto más lejano (esquina) está a 4,24 m < 20 m"},
+    ]
+
+
+profile["test_cases"] = [hyd_case()] + foam_cases() + gas_cases() + other_cases()
+
+
 def dump(o, ind=0):
     """JSON legible: los objetos 'fila' (sin anidación) en una sola línea."""
     pad = "  " * ind

@@ -333,7 +333,310 @@
   },
   "validity": {"effective_date": "2026-10-28", "expires": null},
   "authorship": {"author": "VIGIX (contratista)", "reviewer": "", "date": "2026-10-28", "approval_status": "borrador", "approval_ref": "", "sha256": ""},
-  "test_cases": [],
+  "test_cases": [
+    {
+      "id": "HYD-001",
+      "system": "wet_pipe_sprinkler",
+      "module": "hydraulic",
+      "input": {
+        "network": {
+          "id": "NET1",
+          "system_type": "wet_pipe_sprinkler",
+          "nodes": [
+            {"id": "SUP", "kind": "supply", "elevation_m": 0, "static_pressure_bar": 6.0, "residual_pressure_bar": 4.0, "test_flow_lpm": 1000},
+            {"id": "J", "kind": "junction", "elevation_m": 0},
+            {"id": "S1", "kind": "sprinkler", "elevation_m": 3.0, "k_lpm_bar05": 80, "coverage_area_m2": 12, "min_pressure_bar": 0.5},
+            {"id": "S2", "kind": "sprinkler", "elevation_m": 3.0, "k_lpm_bar05": 80, "coverage_area_m2": 12, "min_pressure_bar": 0.5}
+          ],
+          "links": [
+            {
+              "id": "P1",
+              "kind": "pipe",
+              "from": "SUP",
+              "to": "J",
+              "length_m": 30,
+              "diameter_mm": 65,
+              "c_factor": 120,
+              "fittings": []
+            },
+            {
+              "id": "P2",
+              "kind": "pipe",
+              "from": "J",
+              "to": "S1",
+              "length_m": 10,
+              "diameter_mm": 40,
+              "c_factor": 120,
+              "fittings": []
+            },
+            {
+              "id": "P3",
+              "kind": "pipe",
+              "from": "J",
+              "to": "S2",
+              "length_m": 10,
+              "diameter_mm": 40,
+              "c_factor": 120,
+              "fittings": []
+            }
+          ],
+          "scenarios": [
+            {
+              "id": "SC1",
+              "name": "Ambos",
+              "active_devices": ["S1", "S2"]
+            }
+          ]
+        },
+        "scenario": "SC1",
+        "mode": "operating_point"
+      },
+      "expected": [
+        {"path": "values.summary.total_demand_lpm", "value": 357.90657498442613, "tolerance_rel": 1e-06},
+        {"path": "values.convergence.converged", "equals": true}
+      ],
+      "source": "Independiente: ecuación escalar resuelta por bisección en Python (scripts/generar_perfil_demo.py)"
+    },
+    {
+      "id": "FOAM-001",
+      "system": "foam",
+      "module": "foam",
+      "input": {
+        "system": {
+          "id": "FM1",
+          "method": "surface_application",
+          "hazard_class": "demo_high",
+          "application": "bund",
+          "concentrate": {"type": "demo_afff", "proportion_pct": 3},
+          "area_m2": 50
+        }
+      },
+      "expected": [
+        {"path": "values.flows.solution_lpm", "value": 200.0, "tolerance_rel": 1e-09},
+        {"path": "values.flows.concentrate_lpm", "value": 6.0, "tolerance_rel": 1e-09},
+        {"path": "values.volumes.concentrate_stored_l", "value": 108.0, "tolerance_rel": 1e-09}
+      ],
+      "source": "Independiente: aritmética directa"
+    },
+    {
+      "id": "FOAM-002",
+      "system": "foam",
+      "module": "foam",
+      "input": {
+        "system": {
+          "id": "FM2",
+          "method": "high_expansion_flooding",
+          "hazard_class": "demo_high",
+          "enclosure_volume_m3": 600,
+          "sprinklers_present": true,
+          "sprinkler_breakdown_m3_min": 10,
+          "generator": {"foam_output_m3_min": 120, "expansion_ratio": 500},
+          "concentrate": {"type": "demo_afff", "proportion_pct": 2}
+        }
+      },
+      "expected": [
+        {"path": "values.foam_discharge_m3_min", "value": 289.79999999999995, "tolerance_rel": 1e-09},
+        {"path": "values.generators_required", "value": 3, "tolerance_abs": 0},
+        {"path": "values.volumes.concentrate_stored_l", "value": 166.92479999999998, "tolerance_rel": 1e-09}
+      ],
+      "source": "Independiente: aritmética directa"
+    },
+    {
+      "id": "GAS-001",
+      "system": "gas_clean_agent",
+      "module": "gas",
+      "input": {
+        "system": {
+          "hazard_class": "demo_medium",
+          "occupied": false,
+          "discharge_time_s": 10,
+          "enclosure": {"volume_m3": 200, "min_temperature_c": 20, "altitude_m": 100},
+          "id": "G1",
+          "family": "clean_agent",
+          "agent": "demo_halocarbon",
+          "design_concentration_pct": 8.5,
+          "cylinder": {"max_fill_kg": 60, "min_fill_kg": 20},
+          "hold_time_min": 12
+        }
+      },
+      "expected": [
+        {"path": "values.agent_mass_kg", "value": 114.68663563381233, "tolerance_rel": 1e-09},
+        {"path": "values.cylinders.count", "value": 2, "tolerance_abs": 0}
+      ],
+      "source": "Independiente: W = (V/S)*C/(100-C), S = k1 + k2*T"
+    },
+    {
+      "id": "GAS-002",
+      "system": "gas_inert",
+      "module": "gas",
+      "input": {
+        "system": {
+          "hazard_class": "demo_medium",
+          "occupied": false,
+          "discharge_time_s": 50,
+          "enclosure": {"volume_m3": 300, "min_temperature_c": 15, "altitude_m": 600},
+          "id": "G2",
+          "family": "inert",
+          "agent": "demo_inert",
+          "design_concentration_pct": 40,
+          "cylinder": {"gas_volume_m3": 12}
+        }
+      },
+      "expected": [
+        {"path": "values.gas_volume_reference_m3", "value": 148.55643140133398, "tolerance_rel": 1e-09}
+      ],
+      "source": "Independiente: V_gas = V*(Vs/S)*ln(100/(100-C))*Ca"
+    },
+    {
+      "id": "GAS-003",
+      "system": "gas_co2",
+      "module": "gas",
+      "input": {
+        "system": {
+          "hazard_class": "demo_high",
+          "occupied": false,
+          "discharge_time_s": 45,
+          "enclosure": {"volume_m3": 150, "min_temperature_c": 20, "altitude_m": 0},
+          "id": "G3",
+          "family": "co2",
+          "material": "demo_material_x",
+          "cylinder": {"max_fill_kg": 45, "min_fill_kg": 30}
+        }
+      },
+      "expected": [
+        {"path": "values.agent_mass_kg", "value": 195.0, "tolerance_rel": 1e-09}
+      ],
+      "source": "Independiente: W = V*FF*MCF"
+    },
+    {
+      "id": "DRY-001",
+      "system": "dry_chemical",
+      "module": "dry_chemical",
+      "input": {
+        "system": {
+          "id": "DC1",
+          "mode": "total_flooding",
+          "agent": "demo_powder",
+          "hazard_class": "demo_medium",
+          "occupied": false,
+          "discharge_time_s": 25,
+          "enclosure": {"volume_m3": 120, "open_area_m2": 2},
+          "nozzles": {"count": 4, "flow_kg_s": 1.5},
+          "cylinder": {"capacity_kg": 45}
+        }
+      },
+      "expected": [
+        {"path": "values.agent_mass_kg", "value": 88.0, "tolerance_rel": 1e-09},
+        {"path": "values.cylinders_required", "value": 2, "tolerance_abs": 0}
+      ],
+      "source": "Independiente: W = V*tasa + A*factor"
+    },
+    {
+      "id": "KIT-001",
+      "system": "wet_chemical_kitchen",
+      "module": "wet_chemical",
+      "input": {
+        "system": {
+          "id": "K1",
+          "listing_ref": "Listado de demostración",
+          "tank": {"max_flow_numbers": 12},
+          "appliances": [
+            {
+              "id": "A1",
+              "type": "fryer",
+              "area_m2": 0.9,
+              "nozzle": {"coverage_area_m2": 0.5, "flow_number": 1},
+              "nozzle_count": 2
+            },
+            {
+              "id": "A2",
+              "type": "griddle",
+              "area_m2": 0.6,
+              "nozzle": {"coverage_area_m2": 0.6, "flow_number": 2},
+              "nozzle_count": 1
+            }
+          ],
+          "plenum": {"required_nozzles": 1, "nozzle_count": 1, "flow_number_each": 2},
+          "duct": {"required_nozzles": 1, "nozzle_count": 1, "flow_number_each": 2},
+          "fuel_shutoff": {"provided": true}
+        }
+      },
+      "expected": [
+        {"path": "values.total_flow_numbers", "value": 8, "tolerance_abs": 0}
+      ],
+      "source": "Independiente: suma de números de flujo"
+    },
+    {
+      "id": "AER-001",
+      "system": "condensed_aerosol",
+      "module": "aerosol",
+      "input": {
+        "system": {
+          "id": "AE1",
+          "hazard_class": "demo_high",
+          "occupied": false,
+          "actual_clearance_m": 1.5,
+          "enclosure": {"volume_m3": 90},
+          "product": {"design_density_g_m3": 100, "unit_mass_g": 2500, "max_volume_per_unit_m3": 40, "min_clearance_m": 1.0, "listing_ref": "Listado de demostración"}
+        }
+      },
+      "expected": [
+        {"path": "values.agent_mass_g", "value": 10800.0, "tolerance_rel": 1e-09},
+        {"path": "values.units_required", "value": 5, "tolerance_abs": 0}
+      ],
+      "source": "Independiente: m = V*densidad*factor"
+    },
+    {
+      "id": "EXT-001",
+      "system": "portable_extinguishers",
+      "module": "extinguishers",
+      "input": {
+        "project": {
+          "site": {
+            "levels": [
+              {
+                "id": "L1",
+                "entities": [
+                  {
+                    "id": "R1",
+                    "type": "room",
+                    "pts": [
+                      [0, 0],
+                      [6, 0],
+                      [6, 6],
+                      [0, 6]
+                    ],
+                    "hazard_class": "demo_low",
+                    "fire_classes": ["A"]
+                  }
+                ]
+              }
+            ]
+          },
+          "systems": {
+            "extinguishers": {
+              "analysis": {"grid_m": 0.25},
+              "units": [
+                {
+                  "id": "E1",
+                  "level": "L1",
+                  "x": 3,
+                  "y": 3,
+                  "agent": "water",
+                  "ratings": {"A": 5}
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected": [
+        {"path": "values.summary.uncovered_area_total_m2", "value": 0, "tolerance_abs": 1e-09},
+        {"path": "values.summary.zones_ok", "value": 1, "tolerance_abs": 0}
+      ],
+      "source": "Independiente: sala 6x6 con la unidad en el centro; el punto más lejano (esquina) está a 4,24 m < 20 m"
+    }
+  ],
   "changelog": [
     {"version": "0.1.0", "date": "2026-10-28", "change": "Perfil de demostración (hidráulica y extintores). Sin valor normativo."}
   ],
