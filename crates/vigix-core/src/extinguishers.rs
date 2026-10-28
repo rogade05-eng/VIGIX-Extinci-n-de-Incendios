@@ -345,13 +345,18 @@ struct Req {
     area: Option<Param>,
 }
 
-#[allow(clippy::too_many_lines)]
-pub fn run(project: &Json, profile: &Profile, suggest: Option<&Json>) -> CalcOutput {
-    let fp = fingerprint(
+/// Huella de entrada (zonas, geometría y unidades + perfil + versión del motor).
+pub fn input_fingerprint(project: &Json, profile: &Profile, suggest: Option<&Json>) -> String {
+    fingerprint(
         "extinguishers",
         &[project.field("site"), project.field("systems").field("extinguishers"), suggest.unwrap_or(&Json::Null)],
         Some(profile),
-    );
+    )
+}
+
+#[allow(clippy::too_many_lines)]
+pub fn run(project: &Json, profile: &Profile, suggest: Option<&Json>) -> CalcOutput {
+    let fp = input_fingerprint(project, profile, suggest);
     let mut rd = Reader::new(MODULE);
     let mut used: Vec<Param> = Vec::new();
     let mut trace: Vec<Json> = Vec::new();

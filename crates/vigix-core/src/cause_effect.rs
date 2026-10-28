@@ -27,9 +27,14 @@ const OUT_KINDS: &[&str] = &[
 const IN_KINDS: &[&str] = &["detector", "manual_station", "flow_switch", "pressure_switch", "supervisory", "other"];
 const LOGICS: &[&str] = &["any", "all", "cross_zone"];
 
+/// Huella de entrada (matriz + sistemas de extinción + perfil + versión del motor).
+pub fn input_fingerprint(project: &Json, profile: Option<&Profile>) -> String {
+    fingerprint("cause_effect", &[project.field("cause_effect"), project.field("systems")], profile)
+}
+
 pub fn run(project: &Json, profile: Option<&Profile>) -> CalcOutput {
     let ce = project.field("cause_effect");
-    let fp = fingerprint("cause_effect", &[ce, project.field("systems")], profile);
+    let fp = input_fingerprint(project, profile);
     let mut issues: Vec<Issue> = Vec::new();
     let inputs = ce.field("inputs").items();
     let outputs = ce.field("outputs").items();

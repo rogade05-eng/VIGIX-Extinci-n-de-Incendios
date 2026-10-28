@@ -453,9 +453,19 @@ pub fn bom(project: &Json) -> Vec<BomLine> {
 }
 
 // ------------------------------------------------------------------ presupuesto
+/// Huella de entrada (presupuesto + catálogo del proyecto + cantidades medidas).
+pub fn input_fingerprint(project: &Json) -> String {
+    let boms = Json::Arr(bom(project).iter().map(BomLine::to_json).collect());
+    fingerprint(
+        "budget",
+        &[project.field("budget"), project.field("catalog"), &boms, project.at("display.decimals").unwrap_or(&Json::Null)],
+        None,
+    )
+}
+
 pub fn compute(project: &Json, catalog: &[CatalogItem]) -> CalcOutput {
     let b = project.field("budget");
-    let fp = fingerprint("budget", &[b, project.field("catalog")], None);
+    let fp = input_fingerprint(project);
     let dp = project
         .at("display.decimals")
         .and_then(Json::as_f64)

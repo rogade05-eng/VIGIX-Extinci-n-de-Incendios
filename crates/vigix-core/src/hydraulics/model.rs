@@ -859,10 +859,16 @@ fn margin(c: &Criteria, sol: &Solution) -> (f64, Option<usize>) {
     (worst - 1.0, who)
 }
 
+/// Huella de entrada (red + escenario + modo + perfil + versión del motor).
+pub fn input_fingerprint(network: &Json, scenario_id: &str, mode: &Mode, profile: &Profile) -> String {
+    let mode_name = if *mode == Mode::OperatingPoint { "operating_point" } else { "required_pressure" };
+    fingerprint("hydraulic", &[network, &Json::str(scenario_id), &Json::str(mode_name)], Some(profile))
+}
+
 /// Ejecuta el análisis hidráulico de una red del proyecto para un escenario.
 pub fn run(network: &Json, scenario_id: &str, mode: Mode, profile: &Profile, cancel: Option<&AtomicBool>) -> CalcOutput {
     let mode_name = if mode == Mode::OperatingPoint { "operating_point" } else { "required_pressure" };
-    let fp = fingerprint("hydraulic", &[network, &Json::str(scenario_id), &Json::str(mode_name)], Some(profile));
+    let fp = input_fingerprint(network, scenario_id, &mode, profile);
     let mut rd = Reader::new(MODULE);
     let mut used: Vec<Param> = Vec::new();
     let mut trace: Vec<Json> = Vec::new();

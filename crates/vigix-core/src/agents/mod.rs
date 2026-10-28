@@ -232,6 +232,11 @@ pub fn occupied_safety(c: &mut Calc, s: &Scope, occupied: bool, id: &str, code_p
     }
 }
 
+/// Huella de entrada de un sistema de agente (`foam`, `gas`, `dry_chemical`, `wet_chemical`, `aerosol`).
+pub fn input_fingerprint(kind: &str, sys: &Json, profile: &Profile) -> String {
+    crate::calc::fingerprint(kind, &[sys], Some(profile))
+}
+
 /// Raíz de lectura de un sistema con su id y su ruta dentro del proyecto.
 pub fn sys_scope<'a>(sys: &'a Json, base: &str) -> Scope<'a> {
     let s = Scope::new(sys, base);

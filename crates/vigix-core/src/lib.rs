@@ -22,14 +22,18 @@ pub mod calc;
 pub mod cause_effect;
 pub mod csv;
 pub mod extinguishers;
+pub mod gates;
 pub mod geometry;
 pub mod hash;
 pub mod hydraulics;
 pub mod issues;
 pub mod json;
+pub mod license;
+pub mod permissions;
 pub mod profile;
 pub mod project;
 pub mod reader;
+pub mod store;
 pub mod timeutil;
 pub mod units;
 
