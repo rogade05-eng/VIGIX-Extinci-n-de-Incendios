@@ -1,0 +1,539 @@
+CONTRATO TÉCNICO DE PROGRAMACIÓN Y ESPECIFICACIÓN DE PRODUCTO
+SOFTWARE PARA DISEÑO DE SISTEMAS PORTÁTILES Y FIJOS DE EXTINCIÓN DE INCENDIOS
+
+Versión del documento: 1.0
+Fecha: 28 de octubre de 2026
+Idioma del documento: español
+Estado: especificación técnica base para cotización, desarrollo, pruebas y aceptación
+
+IMPORTANTE: Este documento define el producto de software que se construirá. No es una licencia de ingeniería, no sustituye códigos de incendios, no certifica una instalación y no autoriza a una persona no cualificada a emitir o firmar planos. Todo resultado destinado a permiso, construcción o puesta en marcha requiere revisión y aprobación de un profesional competente y de la autoridad local con jurisdicción (AHJ o equivalente).
+
+======================================================================
+1. PARTES, OBJETO Y ALCANCE DEL CONTRATO
+======================================================================
+
+1.1 Objeto
+
+Desarrollar una aplicación de escritorio profesional, bilingüe y de funcionamiento local para asistir en el levantamiento, diseño, cálculo, coordinación y documentación de sistemas portátiles y fijos de extinción de incendios. La aplicación se denominara provisionalmente SOFTWARE DE DISEÑO DE EXTINCIÓN. El nombre comercial final se podrá cambiar sin alterar este alcance.
+
+El producto tomara como referencia de experiencia y arquitectura una aplicación CAD de escritorio offline con interfaz en español e ingles, proyecto guardable, lienzo 2D/3D, herramientas de cálculo, catálogo, paneles contextuales, documentación y exportación. El dominio, modelo de datos, formulas, validaciones, bibliotecas y documentos se desarrollarán especificamente para protección contra incendios; no se reutilizarán cálculos CCTV como si fueran cálculos de incendios.
+
+1.2 Resultado contratado
+
+Al terminar, el contratista entregará:
+A. Código fuente completo, compilable y versionado.
+B. Aplicación Windows x64 instalable y portable.
+C. Motor de cálculo determinista, con formulas trazables y pruebas automatizadas.
+D. Perfiles normativos versionados, aprobados por especialista para cada jurisdicción declarada como compatible.
+E. Manuales de usuario en español e ingles.
+F. Documentación técnica, esquemas de datos, formatos de proyecto y procedimiento de compilación.
+G. Paquete de pruebas, casos de referencia y resultados de aceptación.
+H. Artefactos de distribución con SHA-256 y sin claves privadas ni credenciales.
+
+1.3 Límite de afirmaciones
+
+El programa será una herramienta de cálculo y documentación. No afirmara por si mismo que un sistema es legal, certificado, aprobado, seguro para ocupación o apto para construcción. La aplicación separara claramente:
+- Borrador / estudio preliminar.
+- Diseño técnico para revisión.
+- Paquete de presentación para permiso, sujeto a firma y aprobación externa.
+- Instalación existente / inspección o mantenimiento, si se activa ese módulo.
+
+No se usarán expresiones como "certificación oficial", "aprobado por NFPA", "aprobado por la AHJ" o equivalentes sin una autorización verificable para el proyecto concreto.
+
+======================================================================
+2. DECISIONES DE PRODUCTO FIJADAS
+======================================================================
+
+2.1 Jurisdicción
+
+El producto será multi-jurisdicción. El motor admitirá perfiles separados para familias normativas NFPA, EN/ISO y anexos nacionales o locales. Cada proyecto seleccionara un perfil explícito. La selección nunca se inferirá unicamente del idioma, país del ordenador o unidades.
+
+La compatibilidad multi-jurisdicción significa que la arquitectura acepta varios perfiles; no significa que todas las normas del mundo esten implementadas. Solo se mostrará una jurisdicción como "perfil verificado" cuando su matriz de códigos, ediciones, anexos, parámetros, ecuaciones, fuentes y pruebas haya sido aprobada por el especialista designado. Si falta esa aprobación, el perfil se marcara "no verificado / solo informativo" y no se generará una declaración de conformidad.
+
+2.2 Sistemas incluidos
+
+La especificación incluye extintores portátiles y las siguientes familias de sistemas fijos:
+A. Agua: rociadores, tubería humeda, seca, preacción y diluvio; agua pulverizada; agua nebulizada cuando exista perfil aprobado; gabinetes, mangueras, columnas/standpipes e hidrantes privados; redes, bombas y depósitos asociados.
+B. Espuma: sistemas de espuma de baja, media y alta expansión y sistemas espuma-agua, incluyendo almacenamiento y dosificación del concentrado.
+C. Agentes gaseosos: CO2 y agentes limpios/inertes contemplados por el perfil seleccionado, con comprobaciones de concentración, volumen protegido, retención, ocupación, alarma y seguridad de descarga.
+D. Polvo químico seco para aplicación local o inundación total, conforme al perfil aprobado.
+E. Agente químico humedo para campanas de cocina comercial y riesgos definidos.
+F. Aerosoles condensados cuando exista un perfil y un paquete de datos de agente/equipo aprobado.
+
+El programa podrá coordinar contactos de detección, disparo, parada de HVAC, compuertas, alarmas y enclavamientos mediante una matriz causa-efecto. El diseño completo de detección, alarma, evacuación, control de humo, protección estructural, evaluación de riesgos laborales y sistemas especiales ajenos a extinción quedan fuera del cálculo salvo que se contraten en un anexo firmado.
+
+2.3 Plataforma e idiomas
+
+Aplicación de escritorio Windows x64. Interfaz, ayuda integrada, mensajes, informes modelo y manuales en español e ingles. Las cadenas no traducidas no podrán aparecer como código, clave interna o texto español sin aviso en modo ingles.
+
+2.4 Operación offline y licencias
+
+El diseño, cálculos, guardado, validación y generación local de archivos funcionarán sin conexión permanente a Internet. No habra telemetría obligatoria ni verificación de licencia online. Solo funciones solicitadas por el usuario que requieran red (por ejemplo abrir una página externa o descargar un paquete de actualización) saldrán del ordenador.
+
+Licencias comerciales perpetuas, sin vencimiento por calendario y sin suscripción obligatoria. La modalidad Freemium podrá limitar ciertas exportaciones o marcarlas como evaluación; no se introducirá caducidad de prueba. La activación PRO será manual/offline con licencia firmada vinculada al identificador autorizado según el acuerdo comercial.
+
+======================================================================
+3. GOBIERNO DE CÓDIGOS, NORMAS Y SEGURIDAD
+======================================================================
+
+3.1 Registro obligatorio de perfiles normativos
+
+Cada perfil normativo se almacenara como paquete de datos versionado, no como condicionales dispersos por la interfaz. Cada paquete contendra obligatoriamente:
+- Código único del perfil, país, region y autoridad competente prevista.
+- Organismo, código/estándar, titulo, edición exacta, fecha de vigencia y enmiendas aplicables.
+- Idioma y sistema de unidades.
+- Ambito cubierto y exclusiones.
+- Tabla de valores, clases, categorias, factores y límites usados por cada cálculo.
+- Referencia identificable a capítulo/sección/tabla de la fuente autorizada, sin copiar texto protegido no licenciado.
+- Autor del paquete, revisor especialista, fecha, firma/huella SHA-256 y estado de aprobación.
+- Casos de prueba independientes y resultado esperado.
+- Historial de cambios y compatibilidad con versiones anteriores.
+
+No se publicará un perfil vacio, ficticio o autocalculado desde texto libre como si fuera normativo. El contratista no inventara factores, distancias, densidades, presiones, tiempos de descarga, concentraciones ni criterios de aceptación.
+
+3.2 Flujo de aprobación
+
+Antes de declarar conforme una jurisdicción, el cliente nombrara a un especialista de protección contra incendios competente para esa jurisdicción. El especialista aprobará por escrito la matriz de fuentes y ediciones, los supuestos, factores y casos de referencia. El desarrollador implementara la matriz aprobada y entregará trazabilidad. La firma del especialista no será sustituida por el software.
+
+Si una norma es revisada, el sistema conservará el perfil anterior y creara una nueva versión; no alterara resultados historicos silenciosamente. El usuario deberá seleccionar la nueva edición y recalcular de forma expresa.
+
+3.3 Perfiles de lanzamiento
+
+El diseño de producto incluirá los siguientes grupos:
+- Perfil de familia NFPA, con paquetes por edición autorizada y las adopciones locales.
+- Perfil de familia EN/ISO, con adopción nacional, anexos y correcciones identificadas.
+- Perfil nacional/local adicional, cargable como paquete versionado y sujeto a la misma revisión.
+
+En la primera publicación, solo serán "verificados" los paquetes para los que exista matriz firmada y conjunto de pruebas aprobado. El resto se mostrará como no disponible o informativo. No se ofrecerá un boton genérico "cumple cualquier norma".
+
+3.4 Referencias de familias normativas
+
+La matriz de perfiles evaluara, según alcance y país, referencias como NFPA 10 (extintores portátiles), 11 (espuma), 12 (CO2), 13 (rociadores), 14 (columnas y mangueras), 15 (agua pulverizada), 16 (espuma-agua), 17/17A (polvo/químico humedo), 20 (bombas), 22 (depósitos), 24 (red privada), 25 (inspección/pruebas/mantenimiento), 72 (interfaces de alarma), 2001 (agentes limpios), 2010 (aerosoles) y 750 (agua nebulizada), según aplicabilidad y edición adoptada.
+
+Para perfiles europeos/internacionales se evaluarán, según alcance y adopción nacional, EN 2/EN 3 (clases de fuego/extintores), EN 671 (mangueras), EN 12845 (rociadores), EN 12259 (componentes de rociadores), EN 13565 (espuma), EN 15004 e ISO 14520 (agentes gaseosos), EN 12416 (polvo), EN 14972 (agua nebulizada) e ISO 6182 (rociadores). La aplicabilidad, edición y adopción legal se definirán en cada paquete verificado.
+
+Referencias para localizar catálogos oficiales; las normas completas pueden estar protegidas por derechos/licencia y no se copiarán dentro del software sin autorización:
+NFPA Codes and Standards: https://www.nfpa.org/codes-and-standards/all-codes-and-standards/list-of-codes-and-standards
+NFPA acceso a códigos: https://www.nfpa.org/customer-support/how-can-i-access-nfpa-codes-and-standards-for-free
+BSI EN 12845: https://knowledge.bsigroup.com/products/fixed-firefighting-systems-automatic-sprinkler-systems-design-installation-and-maintenance-3
+
+3.5 Bloqueos de seguridad
+
+El sistema impedirá emitir una memoria de conformidad cuando:
+- No se haya seleccionado perfil normativo y edición.
+- El perfil este vencido, no aprobado o no cubra el tipo de sistema.
+- Falte un dato obligatorio o haya una unidad incompatible.
+- La fuente de agua, curva de bomba, agente, concentración, equipo o geometría no este definida.
+- El cálculo no converja o exceda límites del perfil.
+- Existan errores criticos de seguridad sin resolver.
+
+Se permitirá guardar un borrador con advertencias, pero cada página y exportación llevará el estado "BORRADOR / NO APTO PARA CONSTRUCCIÓN" hasta resolver los bloqueos. Ningun valor faltante se sustituirá por cero, valor medio o un supuesto oculto.
+
+======================================================================
+4. USUARIOS, ROLES Y PERMISOS
+======================================================================
+
+4.1 Roles
+
+1. Administrador local: gestiona usuarios locales, catálogos, perfiles, rutas de copia y permisos.
+2. Proyectista: crea proyectos, modelos, cálculos y documentos.
+3. Revisor especialista: consulta trazabilidad, compara resultados, aprueba/rechaza revisiones y anota observaciones; no puede cambiar silenciosamente entradas del proyectista.
+4. Instalador/inspector: consulta planos/listas de equipos e introduce datos de pruebas si el módulo de inspección esta contratado.
+5. Cliente/lectura: abre exportaciones de solo lectura sin editar el modelo.
+
+En una instalación individual, los roles pueden asignarse a la misma persona, pero la bitacora debe distinguir autor, revisor y aprobación. El programa no falsificara identidad ni firma digital profesional.
+
+4.2 Auditoría
+
+El registro local guardará fecha/hora del equipo, usuario local, versión del software, perfil, cambios de entradas, ejecuciones de cálculo, aceptaciones y exportaciones. El registro será append-only a nivel de aplicación, exportable para auditoría y sin envio remoto. Se informará que el reloj local no es una fuente certificada de tiempo.
+
+======================================================================
+5. REQUISITOS FUNCIONALES
+======================================================================
+
+5.1 Proyecto y sitio
+
+Cada proyecto incluirá:
+- Identificador, nombre, cliente, dirección/ubicación, autor, revisor y estado.
+- Jurisdicción, autoridad competente, perfil y edición normativa seleccionados.
+- Sistema de unidades SI o US customary, con conversión y almacenamiento canónico.
+- Ocupación, uso del edificio, altura, niveles, compartimentos, superficies, riesgos y restricciones.
+- Geometría del plano, habitaciones, muros, huecos, puertas, escaleras, techos, cotas y niveles.
+- Datos de peligros: combustibles, líquidos/gases, almacenamiento, alturas, estanterias, cocinas, equipos, ocupación y restricciones; según el sistema.
+- Fuente de agua: tipo, presión estática/residual, caudal de ensayo, curva de bomba, niveles y limitaciones.
+- Supuestos y datos no confirmados, cada uno identificado como tal.
+
+5.2 CAD y geometría
+
+- Lienzo 2D con seleccionar, dibujar, editar, medir, cotar, capas, referencias, zoom, pan, undo/redo y propiedades.
+- Vista 3D de apoyo con orbit, zoom, selección y visualización de niveles/sistemas. No se presentara el render como prueba de cálculo.
+- Importar DXF texto y binario según subconjunto admitido, imagenes comunes y PDF de fondo rasterizado. DWG solo mediante conversor local incluido y con versión/licencia documentada.
+- Exportar DXF con capas y bloques genericos, sin simbolos de fabricante obligatorios. Opción IFC para coordinación BIM con entidades/properties identificadas como genericas y documentación de limitaciones.
+- Transformaciones de coordenadas, escala y unidad trazables; no descartar entidades sin informarlo.
+- Validar geometría cerrada, cotas imposibles, solapes y objetos fuera del edificio.
+
+5.3 Módulo de extintores portátiles
+
+- Registrar tipo de agente, clasificación/rating, capacidad, certificación/documentación del producto, identificador del catálogo, peso, ubicación, altura, accesibilidad, protección ambiental y estado.
+- Capturar clase de fuego, riesgo, superficie, ocupación, obstaculos, recorrido, compartimentos y condiciones del ambiente.
+- Proponer ubicaciones candidatas y cobertura unicamente según el perfil aprobado; mostrar cobertura en plano, distancias, zonas sin cobertura y restricciones.
+- No inferir que un extintor sirve para un peligro incompatible. Advertir incompatibilidad entre agente, clase de fuego, ocupación, electricidad, metales, cocina y condiciones ambientales conforme al perfil.
+- Permitir ubicación manual y justificar excepciones con motivo y revisor.
+- Diferenciar diseño nuevo de inventario/inspección; inspección no implica certificación del equipo.
+
+5.4 Redes hidraulicas y sistemas de agua
+
+- Modelar nodos, tuberias, accesorios, valvulas, rociadores, boquillas, hidrantes, gabinetes, conexiones, bombas, tanques y fuentes.
+- Definir elevación, longitud, diametro interior, material, rugosidad/factor, perdida local, coeficientes de descarga, curvas y estados de valvula mediante catálogos identificados.
+- Generar red por trazado manual; sugerir enrutamiento geométrico sin decidir por si mismo el cumplimiento.
+- Resolver caudales/presiones con el método y límites del perfil. Registrar ecuación, unidades, coeficientes, nodos y pasos de iteración.
+- Mostrar el punto hidraulicamente remoto, caudal total, presión residual, velocidad, perdida por tramo, balance en nodos y margen respecto de suministro; mostrar curva de bomba/sistema si corresponde.
+- Permitir escenarios y alternativas sin sobrescribir el caso base.
+- Sistemas soportados: humedo, seco, preacción, diluvio, agua pulverizada, agua nebulizada, mangueras/standpipe, hidrantes, bombas y tanques, según perfil aprobado.
+- Agua nebulizada requiere sus componentes y datos de equipo aprobados; no reutilizar sin validación formulas de rociadores convencionales.
+
+5.5 Módulo de espuma
+
+- Definir clase de riesgo, agente concentrado, expansión, tipo de aplicación, caudal, superficie, duración, proporción, almacenamiento, dispositivo de dosificación y compatibilidad de agua.
+- Calcular volumen/concentrado, caudal requerido, redes y dispositivos según perfil aprobado y datos del fabricante autorizados.
+- Registrar tipo de concentrado, concentración de mezcla, restricciones ambientales y disposición; emitir alerta si el dato no existe o hay limitación legal local.
+- Separar espuma-agua, camaras/toberas, rociadores/boquillas y otras configuraciones; no intercambiar reglas entre configuraciones.
+
+5.6 Módulo de agente gaseoso/limpio
+
+- Capturar volumen protegido por recinto, temperatura, altitud si aplica, obstrucciones, ventilación, estanqueidad, aberturas, ocupación, uso, evacuación, detección y dispositivos de descarga.
+- Calcular cantidad/concentración y descarga solo con la ecuación y tabla del agente/perfil seleccionado.
+- Analizar tiempo de retención, integridad del recinto y alivio de presión cuando sea requerido por el perfil.
+- Emitir advertencias de riesgo para personas, toxicidad/asfixia, ruido, sobrepresión, descarga, rutas de evacuación, alarmas, retardo y anulación manual.
+- No recomendar agente ni concentración automáticamente si faltan datos de seguridad humana o aprobación local.
+- Tratar CO2 como sistema de riesgo elevado y exigir revisión especializada adicional y advertencias reforzadas.
+
+5.7 Módulos químicos seco, humedo y aerosol
+
+- Datos por agente, equipo, riesgo protegido, patron/boquilla, área, volumen, caudal, duración, reserva, descarga y mantenimiento.
+- Cocinas comerciales: equipos, campana, filtros, ductos, aparatos, combustible, activación manual/automática, corte de combustible/energía y matriz causa-efecto.
+- Polvo seco: aplicación local/inundación total según datos aprobados, compatibilidad con equipos/personas y limpieza posterior.
+- Aerosol: volumen, obstrucciones, concentración, dispositivos, presión/temperatura y condiciones de seguridad especificas del agente.
+- Ningun módulo usará valores genericos de un fabricante para otro.
+
+5.8 Coordinación y causa-efecto
+
+- Matriz de entradas, detector/actuador referenciado, acción, retardo, notificación, liberación, parada de HVAC, compuertas, corte de combustible y rearme.
+- Cada interfaz mostrará si es informativa o si pertenece a un diseño de alarma externo.
+- Listado de señales, contactos, cableado de interfaz y pruebas de aceptación con trazabilidad.
+- No controlar directamente actuadores de seguridad desde el software de diseño.
+
+5.9 Catálogos y costos
+
+- Catálogo base neutro por tipo de componente, sin marca/modelo exclusivo.
+- Importación/exportación CSV/XLSX con esquema documentado, validación y reporte de errores.
+- Catálogos del usuario pueden incluir fabricante/modelo, aprobación/listado, rangos, curvas, datos certificados, referencia de ficha y fecha de vigencia.
+- Datos no verificados se etiquetan "aportados por usuario"; no se presentarán como certificación del producto.
+- Moneda y precios son datos introducidos por el usuario. No se inventan tarifas ni se actualizan en linea sin consentimiento.
+- Presupuesto desglosado en material, cantidad, unidad, mano de obra/impuestos/transporte opcionales y notas. Todo subtotal, impuesto y total debe poder rastrearse.
+
+5.10 Validación, avisos y asesoramiento
+
+- Validación por severidad: bloqueo, error, advertencia, información y comprobación superada.
+- Cada aviso incluye causa, dato implicado, referencia normativa del perfil, acción sugerida y posibilidad de localizar el objeto.
+- Asistente de recomendaciones solo sugiere; no cambia geometría, perfil ni dimensionamiento sin confirmación.
+- Recalculo obligatorio tras cambios en entradas relevantes.
+- El resumen identifica entradas sin confirmar, perfil aplicado, errores abiertos y fecha de cálculo.
+
+======================================================================
+6. INFORMES, EXPORTACIONES Y TRAZABILIDAD
+======================================================================
+
+6.1 Documentos
+
+Generar como mínimo:
+- Portada e identificación del proyecto.
+- Base de diseño, alcance, ocupación, peligros, supuestos y exclusiones.
+- Plano de equipos y zonas.
+- Memoria de cálculo por tipo de sistema.
+- Tablas de equipos, tuberias, accesorios, dispositivos y cantidades.
+- Resultados por nodo/tramo/recinto y resumen de demanda/suministro.
+- Matriz causa-efecto e interfaces, si se uso.
+- Lista de advertencias, excepciones y datos pendientes.
+- Tabla de revisiones, autor y revisor, con espacios de firma no rellenados automáticamente.
+- Referencias a normas/códigos, edición, sección y perfil aplicados.
+
+6.2 Formatos
+
+- PDF para informes y laminas; marcas de agua de evaluación en Freemium según licencia.
+- XLSX/CSV para cálculos, schedules y listas de materiales, con unidades explicitas.
+- DXF con simbología/capas genericas.
+- IFC para coordinación, si el módulo BIM esta incluido y sus propiedades están documentadas.
+- JSON de proyecto versionado para intercambio y recuperación local.
+
+Toda exportación debe conservar valores, unidades, identificadores, revisión, perfil normativo, edición y advertencias. La exportación debe informar cualquier contenido omitido o simplificado. Los textos ES/EN se traducirán; códigos, unidades, marcas y nombres propios del usuario se conservarán.
+
+6.3 Integridad
+
+- Manifiesto de exportación con SHA-256 opcional.
+- Nunca agregar firma/QR que afirme aprobación profesional si no hay firma externa verificable.
+- Si hay sello de licencia, indicar exclusivamente la modalidad de licencia; no convertirlo en sello de conformidad contra incendios.
+
+======================================================================
+7. INTERFAZ, IDIOMAS Y ACCESIBILIDAD
+======================================================================
+
+- Español e ingles completos; selector inmediato, persistente localmente.
+- Interfaz consistente: menu, paneles, cuadros, estados, ayudas, errores, nombres de exportación y manuales.
+- No codificar texto visible solo dentro de funciones de cálculo; usar catálogo de traducciones.
+- Idioma no alterara resultados numericos; formato decimal, separadores y unidades son configurables y visibles.
+- Navegación con teclado, enfoque visible, contraste suficiente, etiquetas accesibles y mensajes de error asociados al campo.
+- No usar solo color para distinguir sistemas o severidad; combinar color, icono y texto.
+- Simbolos graficos genericos, accesibles y editables; no copiar bloques/logos protegidos de marcas sin licencia.
+
+======================================================================
+8. ARQUITECTURA Y REQUISITOS NO FUNCIONALES
+======================================================================
+
+8.1 Stack obligatorio
+
+- Escritorio: Tauri 2 + Rust estable para shell, persistencia, cálculos de seguridad y validación.
+- Interfaz: HTML/CSS/JavaScript modular, sin cargar scripts ni fuentes remotas.
+- Base local: SQLite con migraciones versionadas; datos propios del usuario permanecen en el equipo.
+- Motor de cálculo: Rust determinista, separado de la interfaz, con interfaz estable para pruebas.
+- Exportación local PDF, XLSX, CSV, DXF y JSON; IFC según alcance BIM.
+- Compilación reproducible en Windows x64 MSVC y automatizada en GitHub Actions.
+
+8.2 Rendimiento objetivo contractual
+
+Equipo mínimo de referencia para pruebas: Windows 10 22H2 o Windows 11 x64, CPU de 4 nucleos x64 a 2.0 GHz o equivalente, 8 GB RAM, 2 GB de espacio libre para instalación/proyecto, pantalla 1366x768, WebView2 Runtime y graficos integrados compatibles con DirectX 11. No se requiere GPU dedicada.
+
+En ese equipo, con un proyecto de referencia de hasta 5,000 nodos, 10,000 tramos y 2,000 dispositivos de descarga, los tiempos objetivo serán: apertura < 10 s, recalculo de interfaz < 2 s, solución hidráulica < 60 s y exportación de informe < 30 s. Si el proyecto excede dichos límites, mostrar progreso, cancelación segura y memoria estimada. Estos valores se validarán en el equipo de referencia antes de aceptación.
+
+8.3 Confiabilidad
+
+- Guardado atómico y recuperación tras cierre inesperado.
+- Copia automática local configurable; restauración con confirmación.
+- Migraciones de base de datos no destructivas y copia antes de migrar.
+- Errores de cálculo no pueden bloquear silenciosamente ni producir valores parciales como validos.
+- Sin pérdidas al cambiar idioma, unidad o perfil.
+- Ningun cálculo depende del reloj del sistema para licencia o seguridad.
+
+8.4 Privacidad y ciberseguridad
+
+- Sin telemetría, publicidad, envio de planos ni almacenamiento en nube por defecto.
+- Sin llamadas de red para cálculos o validación de licencia.
+- No almacenar telefono, comprobante de pago, PIN, OTP, CVV, contrasenas bancarias ni credenciales.
+- Mensajes de contacto externos se preparan solo por solicitud expresa; el usuario revisa y pulsa Enviar.
+- No incluir clave privada de firma en código, repositorio, CI, logs, instaladores o ZIP. Clave privada en medio seguro separado, acceso mínimo y registro de custodia.
+- Dependencias identificadas por versión y licencia; descarga de dependencias de build fijada por hash cuando sea posible.
+- Firmar ejecutables solo con certificado de distribución autorizado y separado; no falsificar autor ni editor.
+- Datos de entrada validados contra inyección, rutas maliciosas, archivos corruptos y límites de memoria.
+
+======================================================================
+9. DATOS, ARCHIVOS Y COMPATIBILIDAD
+======================================================================
+
+9.1 Archivo de proyecto
+
+Formato propio versionado con identificador de esquema, versión de aplicación y unidad base. Debe contener geometría, dispositivos, sistemas, perfiles, entradas, supuestos, resultados, advertencias y auditoría. Los resultados guardados se marcarán obsoletos si cambian entradas, perfil, edición o motor.
+
+9.2 Formatos de importación
+
+DXF, PNG/JPEG, PDF como fondo no editable, CSV/XLSX de catálogos y puntos de alimentación. DWG solo por conversor local cuya licencia, hash, DLLs y limitaciones se incluyan en manifiesto. No aceptar un archivo como válido sin validar tamaño, codificación y esquema.
+
+9.3 Compatibilidad hacia atras
+
+- Abrir versiones anteriores con migración documentada, conservando copia original.
+- No convertir un resultado viejo en conforme a nueva edición sin recalculo.
+- Informar claramente entidades/propiedades descartadas al importar o exportar.
+
+======================================================================
+10. LICENCIAS Y DISTRIBUCIÓN
+======================================================================
+
+- Edición Freemium/evaluación para diseño y cálculos basicos sin período de vencimiento; exportaciones profesionales pueden llevar marca de evaluación o requerir PRO.
+- PRO mediante licencia perpetua, sin vencimiento y con condiciones de uso explicitamente mostradas.
+- Activación y validación local/offline; no introducir comprobación online sin nueva autorización escrita.
+- Precio se fija por escrito antes de cobrar; el programa no inventa ni muestra tarifas no aprobadas.
+- Pagos manuales si se incluyen: revisión del vendedor, consentimiento y confirmación del usuario; no asumir verificaciones automaticas de Transfermovil u otros sistemas.
+- La clave privada de firma se conserva fuera del repositorio y de todos los paquetes de distribución. En CI solo se usa clave pública de verificación.
+- Compilaciones firmadas se publican con SHA-256, versión, commit origen, arquitectura y fecha de build.
+
+======================================================================
+11. PRUEBAS Y CRITERIOS DE ACEPTACIÓN
+======================================================================
+
+11.1 Requisito general de seguridad
+
+Cada perfil y módulo de cálculo debe tener casos de referencia aprobados por un especialista competente. El contratista no podrá dar por aprobado un motor solo porque compila, abre un plano o genera un PDF.
+
+11.2 Pruebas de cálculo
+
+- Pruebas unitarias de conversión de unidades, geometría, caudales, pérdidas, presión, concentración, cantidad de agente, cobertura y redondeo.
+- Pruebas de perfil normativo: límites, categorias, tabla de factores, edición y rechazo de valores fuera del rango.
+- Pruebas integrales con casos manuales/referencias independientes firmadas por el especialista.
+- Tolerancia numérica máxima de 1.0% frente a benchmark aprobado para resultados de caudal, presión, volumen/concentración y cantidad de agente, salvo que el perfil o el especialista exija tolerancia más estricta. La tolerancia no sustituye margen de diseño normativo.
+- Convergencia declarada; no informar solución si no converge. Residual de balance interno objetivo <= 0.1% por nodo/continuidad o criterio más estricto del perfil.
+- Casos límite: red abierta/cerrada, bomba fuera de curva, fuente insuficiente, altitud/temperatura no soportada, datos ausentes, diametro cero, unidad incompatible y habitación con aberturas.
+- Prueba de repetibilidad: mismas entradas y perfil producen mismo resultado y huella de datos.
+
+11.3 Casos de aceptación funcionales
+
+A. Extintores portátiles: clasificación de riesgos, ubicaciones, cobertura, recorrido y reporte de excepciones; comparar con caso manual validado para cada perfil.
+B. Rociadores: red ramificada/reticulada con fuente, dispositivos, elevaciones y punto remoto; comparar caudal/presión por nodo con referencia firmada.
+C. Gabinetes/standpipe e hidrantes: demandas simultáneas, suministro y presión residual; validar combinaciones definidas por perfil.
+D. Bomba y depósito: comparar curva, punto de operación, demanda y volumen de reserva con un caso independiente.
+E. Espuma: calcular concentrado/solución para área y duración definidas; verificar tablas y compatibilidad.
+F. Agente gaseoso: volumen, concentración, descarga, retención y avisos de seguridad; bloquear si faltan datos criticos.
+G. Químico seco/humedo/aerosol: validar por equipo/agente con casos propios, sin compartir tablas entre agentes.
+H. Causa-efecto: entrada, retardo, parada, descarga y rearme; exportar matriz trazable.
+I. Importación/exportación: proyecto de prueba ida/vuelta, plano DXF, informes PDF/XLSX/CSV y verificación de contenido y unidades.
+J. Bilingüe: 100% de cadenas visibles principales, ayudas y documentos disponibles en ambos idiomas; sin claves internas sin traducir.
+K. Offline: bloquear la red y demostrar funcionamiento de abrir, editar, calcular, guardar y exportar.
+L. Privacidad/licencias: sin telemetría; licencia local perpetua no consulta servidor; la clave privada no aparece en repositorio o artefactos.
+
+11.4 Puertas de liberación
+
+No se aceptara una versión de producción hasta que:
+- 100% de pruebas criticas de seguridad pasen.
+- 100% de perfiles declarados compatibles tengan informe de revisión normativa firmado.
+- No haya defectos criticos/altos abiertos en cálculo, permisos, datos, privacidad o instalación.
+- Instalador y portable se instalen/abran en Windows limpio de referencia.
+- Se prueben actualización, desinstalación, preservación de proyectos y restauración.
+- Informe del build, SHA-256, versión y lista de dependencias esten entregados.
+- Se aprueben manuales ES/EN y textos de limitación de responsabilidad.
+
+======================================================================
+12. ENTREGABLES DETALLADOS
+======================================================================
+
+D1. Documento de arquitectura, diagramas y modelo de datos.
+D2. Aplicación Windows x64, instalador y portable.
+D3. Código fuente Rust/JS/CSS/HTML y scripts de build.
+D4. Motor de cálculo, perfiles normativos y suite de pruebas.
+D5. Catálogo genérico de componentes de ejemplo claramente identificado como demostrativo.
+D6. Manual de usuario en español e ingles.
+D7. Manual de instalación, administración, respaldo, actualización y recuperación.
+D8. Guía de perfiles normativos y procedimiento de aprobación/revisión.
+D9. Matriz de cobertura funcional y trazabilidad requisito-prueba.
+D10. Reporte de pruebas con datos de entrada, resultados, tolerancias y firma del revisor especialista.
+D11. Manifiesto de componentes de terceros y licencias.
+D12. Sumas SHA-256 y notas de versión.
+D13. Exportaciones de ejemplo, anonimizadas y sin datos de clientes.
+
+======================================================================
+13. PLAN DE TRABAJO Y ACEPTACIÓN POR FASES
+======================================================================
+
+Fase 0 - Descubrimiento y perfil normativo: aprobar jurisdicciones objetivo, matriz de normas/ediciones, especialista responsable, equipo de referencia, modelos de prueba y política de responsabilidad.
+
+Fase 1 - Base del producto: shell, proyecto, CAD 2D, unidades, capas, guardado, auditoría, idioma ES/EN y catálogo.
+
+Fase 2 - Extintores portátiles: riesgos, selección/ubicación, cobertura, validación y documentos.
+
+Fase 3 - Agua fija: red, dispositivos, cálculo hidráulico, bombas, tanques, standpipe/hidrantes y perfil aprobado.
+
+Fase 4 - Agentes especiales: espuma, CO2/agentes limpios, polvo, químico humedo, aerosol y respectivos perfiles/casos de prueba.
+
+Fase 5 - Documentos/BIM/instalador: PDF/XLSX/CSV/DXF/IFC, manuales, instalación, build automatizado y prueba offline.
+
+Fase 6 - Verificación independiente y liberación: ejecutar casos, resolver defectos, firmar matriz de conformidad y aceptar entrega.
+
+Cada fase requiere: demo, código fuente, pruebas, lista de defectos, revisión del cliente y acta de aceptación. El rechazo debe identificar requisito incumplido y evidencia reproducible. Cambios de alcance se documentan en control de cambios antes de ejecutarse.
+
+No se fija aqui precio de desarrollo, fecha de entrega, razon social, domicilio ni jurisdicción contractual porque esos datos no se han proporcionado. Deben agregarse en la caratula comercial/legal antes de firmar. No alteran los requisitos técnicos de este anexo.
+
+======================================================================
+14. FUERA DE ALCANCE SALVO ANEXO FIRMADO
+======================================================================
+
+- Garantizar aprobación de AHJ, permiso, aseguradora o certificador.
+- Sustituir inspección, cálculo firmado, sello profesional, pruebas fisicas o puesta en marcha.
+- Disenar detección/alarma completa, evacuación, control de humo, protección pasiva, resistencia estructural o análisis CFD.
+- Accionar equipos de extinción en tiempo real desde el ordenador.
+- Actualizar normas automáticamente desde Internet.
+- Incluir licencias propietarias de códigos completos, simbolos, hojas de datos o catálogos de fabricante sin permiso.
+- Asegurar que un componente genérico equivale a un producto listado/aprobado.
+- Incorporar precios de mercado no entregados por el cliente.
+
+======================================================================
+15. CONTROL DE CAMBIOS, GARANTÍA Y SOPORTE
+======================================================================
+
+- Cada solicitud de cambio tendra identificador, motivo, requisitos afectados, estimación, riesgos de seguridad, efecto en datos y aprobación escrita.
+- Correcciones de defectos contra requisitos aceptados no se facturan como cambio de alcance durante el período de garantía pactado.
+- Cambios de normativa, nuevas jurisdicciones, agentes, formulas, informes o interfaces se evaluan como nueva versión/perfil y requieren regresión completa.
+- Copias de seguridad y restauración se prueban antes de publicar migraciones.
+- El período y modalidad de soporte, garantía, mantenimiento y respuesta a incidencias se fijarán en el contrato comercial; no se prometerán actualizaciones perpetuas salvo que se contraten expresamente.
+- Incidencias que puedan inducir una condición insegura se informan inmediatamente; el perfil o función afectada puede bloquearse hasta corregirla.
+
+======================================================================
+16. RESPONSABILIDADES DEL CLIENTE Y DEL CONTRATISTA
+======================================================================
+
+Cliente:
+- Nombrar el responsable técnico y especialistas revisores por jurisdicción.
+- Facilitar fuentes normativas autorizadas, ediciones aplicables, anexos locales y casos benchmark.
+- Proporcionar requisitos de interfaz, formatos CAD/BIM, condiciones comerciales y datos no inventados.
+- Revisar entregas dentro del plazo comercial acordado y documentar aceptación/rechazo.
+
+Contratista:
+- Implementar requisitos, formulas, trazabilidad, pruebas y bloqueos de seguridad.
+- No presentar supuestos del desarrollador como norma.
+- Mantener código fuente y dependencias identificables.
+- Proteger claves privadas y datos del cliente.
+- Informar limitaciones, defectos, resultados no convergentes y diferencias de perfil.
+- Entregar herramientas de compilación y datos reproducibles para que el cliente pueda auditar el build.
+
+======================================================================
+17. ACEPTACIÓN FINAL Y FIRMAS
+======================================================================
+
+La aceptación final requiere firma de las partes y del revisor técnico designado en el anexo de jurisdicciones. La firma confirma entrega de software y pruebas; no certifica automáticamente un proyecto de extinción concreto.
+
+Cliente / entidad: ______________________________________________
+Representante: __________________________________________________
+Fecha: _________________________ Firma: __________________________
+
+Contratista / desarrollador: _____________________________________
+Representante: __________________________________________________
+Fecha: _________________________ Firma: __________________________
+
+Especialista de protección contra incendios revisor: ______________
+Licencia/registro profesional y jurisdicción: ____________________
+Perfiles y ediciones que revisa: __________________________________
+Fecha: _________________________ Firma: __________________________
+
+ANEXO A - MATRIZ DE JURISDICCIONES QUE SE declararán COMPATIBLES
+
+No completar con códigos o ediciones supuestos. Antes del lanzamiento, registrar para cada perfil:
+País/region: ____________________________________________________
+Autoridad con jurisdicción (AHJ): ________________________________
+Familia de perfil: NFPA / EN-ISO / nacional-local / otra
+Código y edición exacta por módulo: ______________________________
+Enmiendas y adopción nacional/local: _____________________________
+Licencia legal de uso de las fuentes: ____________________________
+Especialista responsable y credencial: ___________________________
+Casos de prueba de referencia: ___________________________________
+Estado: borrador / revisado / aprobado / retirado
+Hash SHA-256 del paquete: ________________________________________
+Fecha de entrada en vigor y revisión: ____________________________
+
+ANEXO B - INVENTARIO MÍNIMO DE MÓDULOS
+
+[ ] Proyecto, geometría 2D/3D, unidades, capas y auditoría.
+[ ] Extintores portátiles.
+[ ] Rociadores humedos/secos/preacción/diluvio.
+[ ] Redes hidraulicas, bombas, depósitos y suministro.
+[ ] Hidrantes, mangueras, gabinetes y standpipes.
+[ ] Agua pulverizada / nebulizada con perfiles especificos.
+[ ] Espuma y espuma-agua.
+[ ] CO2 y agentes gaseosos/limpios con chequeos de seguridad humana.
+[ ] Polvo químico seco.
+[ ] Químico humedo de cocina.
+[ ] Aerosoles condensados.
+[ ] Matriz causa-efecto e interfaces.
+[ ] Catálogos, cantidades y presupuesto introducido por usuario.
+[ ] Validación y reportes con trazabilidad.
+[ ] PDF, XLSX, CSV, DXF, JSON; IFC documentado.
+[ ] ES/EN completa.
+[ ] Offline, copia/restauración, instalador x64 y licencias perpetuas.
+[ ] Perfiles normativos aprobados y pruebas independientes.
+
+FIN DEL CONTRATO TÉCNICO
