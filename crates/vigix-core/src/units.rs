@@ -52,10 +52,8 @@ pub struct UnitTable {
 pub fn table() -> &'static UnitTable {
     static T: OnceLock<UnitTable> = OnceLock::new();
     T.get_or_init(|| {
-        let doc = Json::parse(UNITS_JSON)
-            .expect("shared/units.json es JSON válido (verificado por pruebas)");
-        UnitTable::from_json(&doc)
-            .expect("shared/units.json tiene el esquema esperado (verificado por pruebas)")
+        let doc = Json::parse(UNITS_JSON).expect("shared/units.json es JSON válido (verificado por pruebas)");
+        UnitTable::from_json(&doc).expect("shared/units.json tiene el esquema esperado (verificado por pruebas)")
     })
 }
 
@@ -63,36 +61,17 @@ impl UnitTable {
     pub fn from_json(doc: &Json) -> Result<UnitTable, String> {
         let mut units = BTreeMap::new();
         let mut canonical = BTreeMap::new();
-        let qs = doc
-            .field("quantities")
-            .as_obj()
-            .ok_or("falta 'quantities'")?;
+        let qs = doc.field("quantities").as_obj().ok_or("falta 'quantities'")?;
         for (qname, q) in qs {
-            let canon = q
-                .field("canonical")
-                .as_str()
-                .ok_or("falta 'canonical'")?
-                .to_string();
+            let canon = q.field("canonical").as_str().ok_or("falta 'canonical'")?.to_string();
             canonical.insert(qname.clone(), canon);
             if let Some(us) = q.field("units").as_obj() {
                 for (u, f) in us {
-                    let a = f
-                        .as_f64()
-                        .ok_or_else(|| format!("factor inválido de {}", u))?;
+                    let a = f.as_f64().ok_or_else(|| format!("factor inválido de {}", u))?;
                     if a <= 0.0 {
                         return Err(format!("factor no positivo en {}", u));
                     }
-                    if units
-                        .insert(
-                            u.clone(),
-                            UnitDef {
-                                quantity: qname.clone(),
-                                a,
-                                b: 0.0,
-                            },
-                        )
-                        .is_some()
-                    {
+                    if units.insert(u.clone(), UnitDef { quantity: qname.clone(), a, b: 0.0 }).is_some() {
                         return Err(format!("unidad duplicada: {}", u));
                     }
                 }
@@ -104,17 +83,7 @@ impl UnitTable {
                     if a <= 0.0 {
                         return Err(format!("pendiente no positiva en {}", u));
                     }
-                    if units
-                        .insert(
-                            u.clone(),
-                            UnitDef {
-                                quantity: qname.clone(),
-                                a,
-                                b,
-                            },
-                        )
-                        .is_some()
-                    {
+                    if units.insert(u.clone(), UnitDef { quantity: qname.clone(), a, b }).is_some() {
                         return Err(format!("unidad duplicada: {}", u));
                     }
                 }
@@ -126,14 +95,8 @@ impl UnitTable {
                 let mut m = BTreeMap::new();
                 if let Some(rs) = roles.as_obj() {
                     for (role, qu) in rs {
-                        let q = qu
-                            .idx(0)
-                            .and_then(Json::as_str)
-                            .ok_or("rol de presentación inválido")?;
-                        let u = qu
-                            .idx(1)
-                            .and_then(Json::as_str)
-                            .ok_or("rol de presentación inválido")?;
+                        let q = qu.idx(0).and_then(Json::as_str).ok_or("rol de presentación inválido")?;
+                        let u = qu.idx(1).and_then(Json::as_str).ok_or("rol de presentación inválido")?;
                         if !units.contains_key(u) {
                             return Err(format!("unidad de presentación desconocida: {}", u));
                         }
@@ -143,16 +106,8 @@ impl UnitTable {
                 display.insert(sys.clone(), m);
             }
         }
-        let g = doc
-            .field("gravedad_estandar_m_s2")
-            .as_f64()
-            .ok_or("falta la gravedad estándar")?;
-        Ok(UnitTable {
-            units,
-            canonical,
-            display,
-            standard_gravity: g,
-        })
+        let g = doc.field("gravedad_estandar_m_s2").as_f64().ok_or("falta la gravedad estándar")?;
+        Ok(UnitTable { units, canonical, display, standard_gravity: g })
     }
 
     pub fn quantity_of(&self, unit: &str) -> Option<&str> {
@@ -169,29 +124,17 @@ impl UnitTable {
 
     /// Unidad de presentación `(magnitud, unidad)` para un sistema (`SI`/`US`) y un rol.
     pub fn display_unit(&self, system: &str, role: &str) -> Option<(&str, &str)> {
-        self.display
-            .get(system)?
-            .get(role)
-            .map(|(q, u)| (q.as_str(), u.as_str()))
+        self.display.get(system)?.get(role).map(|(q, u)| (q.as_str(), u.as_str()))
     }
 
     pub fn convert(&self, value: f64, from: &str, to: &str) -> Result<f64, UnitError> {
         if !value.is_finite() {
             return Err(UnitError::NotFinite);
         }
-        let f = self
-            .units
-            .get(from)
-            .ok_or_else(|| UnitError::Unknown(from.to_string()))?;
-        let t = self
-            .units
-            .get(to)
-            .ok_or_else(|| UnitError::Unknown(to.to_string()))?;
+        let f = self.units.get(from).ok_or_else(|| UnitError::Unknown(from.to_string()))?;
+        let t = self.units.get(to).ok_or_else(|| UnitError::Unknown(to.to_string()))?;
         if f.quantity != t.quantity {
-            return Err(UnitError::Incompatible {
-                from: from.to_string(),
-                to: to.to_string(),
-            });
+            return Err(UnitError::Incompatible { from: from.to_string(), to: to.to_string() });
         }
         if from == to {
             return Ok(value);
@@ -202,18 +145,11 @@ impl UnitTable {
 
     /// Convierte a la unidad canónica de su magnitud. Devuelve `(valor, unidad canónica)`.
     pub fn to_canonical(&self, value: f64, unit: &str) -> Result<(f64, &str), UnitError> {
-        let f = self
-            .units
-            .get(unit)
-            .ok_or_else(|| UnitError::Unknown(unit.to_string()))?;
+        let f = self.units.get(unit).ok_or_else(|| UnitError::Unknown(unit.to_string()))?;
         if !value.is_finite() {
             return Err(UnitError::NotFinite);
         }
-        let canon_unit = self
-            .canonical
-            .get(&f.quantity)
-            .map(String::as_str)
-            .unwrap_or("");
+        let canon_unit = self.canonical.get(&f.quantity).map(String::as_str).unwrap_or("");
         Ok((f.a * value + f.b, canon_unit))
     }
 }
@@ -297,38 +233,14 @@ mod tests {
     fn conversiones_exactas_conocidas() {
         assert!(close(convert(1.0, "in", "mm").unwrap(), 25.4, 1e-15));
         assert!(close(convert(1.0, "ft", "m").unwrap(), 0.3048, 1e-15));
-        assert!(close(
-            convert(1.0, "psi", "kPa").unwrap(),
-            6.894757293168361,
-            1e-12
-        ));
-        assert!(close(
-            convert(100.0, "psi", "bar").unwrap(),
-            6.894757293168361,
-            1e-12
-        ));
-        assert!(close(
-            convert(1.0, "gpm", "L/min").unwrap(),
-            3.785411784,
-            1e-15
-        ));
+        assert!(close(convert(1.0, "psi", "kPa").unwrap(), 6.894757293168361, 1e-12));
+        assert!(close(convert(100.0, "psi", "bar").unwrap(), 6.894757293168361, 1e-12));
+        assert!(close(convert(1.0, "gpm", "L/min").unwrap(), 3.785411784, 1e-15));
         assert!(close(convert(1.0, "lb", "kg").unwrap(), 0.45359237, 1e-15));
-        assert!(close(
-            convert(1.0, "gal_us", "L").unwrap(),
-            3.785411784,
-            1e-14
-        ));
+        assert!(close(convert(1.0, "gal_us", "L").unwrap(), 3.785411784, 1e-14));
         assert!(close(convert(1.0, "atm", "kPa").unwrap(), 101.325, 1e-14));
-        assert!(close(
-            convert(1.0, "gpm/ft2", "mm/min").unwrap(),
-            40.74583333333333,
-            1e-12
-        ));
-        assert!(close(
-            convert(1.0, "gpm/psi^0.5", "L/min/bar^0.5").unwrap(),
-            14.416294257371696,
-            1e-12
-        ));
+        assert!(close(convert(1.0, "gpm/ft2", "mm/min").unwrap(), 40.74583333333333, 1e-12));
+        assert!(close(convert(1.0, "gpm/psi^0.5", "L/min/bar^0.5").unwrap(), 14.416294257371696, 1e-12));
     }
 
     #[test]
@@ -346,10 +258,7 @@ mod tests {
     #[test]
     fn temperatura_afin() {
         assert!(close(convert(100.0, "C", "F").unwrap(), 212.0, 1e-12));
-        assert!(
-            close(convert(32.0, "F", "C").unwrap(), 0.0, 1e-9)
-                || convert(32.0, "F", "C").unwrap().abs() < 1e-12
-        );
+        assert!(close(convert(32.0, "F", "C").unwrap(), 0.0, 1e-9) || convert(32.0, "F", "C").unwrap().abs() < 1e-12);
         assert!(close(convert(0.0, "C", "K").unwrap(), 273.15, 1e-12));
         assert!(close(convert(-40.0, "F", "C").unwrap(), -40.0, 1e-12));
         let x = 23.456;
@@ -373,17 +282,8 @@ mod tests {
 
     #[test]
     fn unidad_incompatible_o_desconocida() {
-        assert_eq!(
-            convert(1.0, "psi", "m"),
-            Err(UnitError::Incompatible {
-                from: "psi".into(),
-                to: "m".into()
-            })
-        );
-        assert!(matches!(
-            convert(1.0, "furlong", "m"),
-            Err(UnitError::Unknown(_))
-        ));
+        assert_eq!(convert(1.0, "psi", "m"), Err(UnitError::Incompatible { from: "psi".into(), to: "m".into() }));
+        assert!(matches!(convert(1.0, "furlong", "m"), Err(UnitError::Unknown(_))));
         assert_eq!(convert(f64::NAN, "m", "ft"), Err(UnitError::NotFinite));
         assert_eq!(convert(f64::INFINITY, "m", "ft"), Err(UnitError::NotFinite));
     }

@@ -1,0 +1,82 @@
+{
+ "description": "Dos fuentes con válvula de retención hacia un nodo común; demanda fija y dispositivo",
+ "epanet": {
+  "flow_lpm": {
+   "P1": 657.77488052845,
+   "P2": 0.0,
+   "PN": 257.77428410947323
+  },
+  "head_bar": {
+   "M": 5.294436919981003,
+   "N": 5.220523799697876,
+   "S1": 5.500000081769944,
+   "S2": 4.199999831184387
+  },
+  "pressure_bar": {
+   "M": 5.098303919981003,
+   "N": 5.024390799697876,
+   "S1": 5.500000081769944,
+   "S2": 4.199999831184387
+  }
+ },
+ "gamma_bar_per_m": 0.0980665,
+ "hw": {
+  "K": 607332.965600807,
+  "m": 4.871,
+  "n": 1.852
+ },
+ "links": [
+  {
+   "c": 120,
+   "check_valve": true,
+   "diameter_mm": 100.0,
+   "from": "S1",
+   "id": "P1",
+   "kind": "pipe",
+   "length_m": 80.0,
+   "to": "M"
+  },
+  {
+   "c": 120,
+   "check_valve": true,
+   "diameter_mm": 100.0,
+   "from": "S2",
+   "id": "P2",
+   "kind": "pipe",
+   "length_m": 30.0,
+   "to": "M"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 65.0,
+   "from": "M",
+   "id": "PN",
+   "kind": "pipe",
+   "length_m": 20.0,
+   "to": "N"
+  }
+ ],
+ "name": "dos_fuentes_retencion",
+ "nodes": [
+  {
+   "elevation_m": 0.0,
+   "fixed_pressure_bar": 5.5,
+   "id": "S1"
+  },
+  {
+   "elevation_m": 0.0,
+   "fixed_pressure_bar": 4.2,
+   "id": "S2"
+  },
+  {
+   "demand_lpm": 400.0,
+   "elevation_m": 2.0,
+   "id": "M"
+  },
+  {
+   "device_k": 115.0,
+   "elevation_m": 2.0,
+   "id": "N"
+  }
+ ]
+}

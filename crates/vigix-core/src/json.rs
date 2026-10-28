@@ -45,10 +45,7 @@ pub struct Limits {
 
 impl Default for Limits {
     fn default() -> Self {
-        Limits {
-            max_bytes: 256 * 1024 * 1024,
-            max_depth: 128,
-        }
+        Limits { max_bytes: 256 * 1024 * 1024, max_depth: 128 }
     }
 }
 
@@ -62,19 +59,9 @@ impl Json {
 
     pub fn parse_with_limits(s: &str, limits: Limits) -> Result<Json, JsonError> {
         if s.len() > limits.max_bytes {
-            return Err(JsonError {
-                msg: format!(
-                    "el documento excede el límite de {} bytes",
-                    limits.max_bytes
-                ),
-                offset: 0,
-            });
+            return Err(JsonError { msg: format!("el documento excede el límite de {} bytes", limits.max_bytes), offset: 0 });
         }
-        let mut p = Parser {
-            b: s.as_bytes(),
-            i: 0,
-            max_depth: limits.max_depth,
-        };
+        let mut p = Parser { b: s.as_bytes(), i: 0, max_depth: limits.max_depth };
         // BOM UTF-8 tolerado.
         if p.b.starts_with(&[0xEF, 0xBB, 0xBF]) {
             p.i = 3;
@@ -379,10 +366,7 @@ struct Parser<'a> {
 
 impl<'a> Parser<'a> {
     fn err(&self, msg: &str) -> JsonError {
-        JsonError {
-            msg: msg.to_string(),
-            offset: self.i,
-        }
+        JsonError { msg: msg.to_string(), offset: self.i }
     }
 
     fn ws(&mut self) {
@@ -470,9 +454,7 @@ impl<'a> Parser<'a> {
         }
         let mut v = 0u32;
         for _ in 0..4 {
-            let d = (self.b[self.i] as char)
-                .to_digit(16)
-                .ok_or_else(|| self.err("dígito hexadecimal inválido"))?;
+            let d = (self.b[self.i] as char).to_digit(16).ok_or_else(|| self.err("dígito hexadecimal inválido"))?;
             v = v * 16 + d;
             self.i += 1;
         }
@@ -495,9 +477,7 @@ impl<'a> Parser<'a> {
             }
             if self.i > start {
                 // El origen es &str válido y cortamos en bytes ASCII, así que es UTF-8 válido.
-                out.push_str(
-                    std::str::from_utf8(&self.b[start..self.i]).map_err(|_| self.err("utf8"))?,
-                );
+                out.push_str(std::str::from_utf8(&self.b[start..self.i]).map_err(|_| self.err("utf8"))?);
             }
             match self.peek() {
                 None => return Err(self.err("cadena sin cerrar")),
@@ -538,10 +518,7 @@ impl<'a> Parser<'a> {
                             } else {
                                 hi
                             };
-                            out.push(
-                                char::from_u32(cp)
-                                    .ok_or_else(|| self.err("punto de código inválido"))?,
-                            );
+                            out.push(char::from_u32(cp).ok_or_else(|| self.err("punto de código inválido"))?);
                         }
                         _ => return Err(self.err("escape inválido")),
                     }
@@ -632,10 +609,7 @@ mod tests {
         let src = r#"{"b":[1,2.5,-3e2,true,false,null],"a":"hola \"mundo\" \u00e1\n","c":{}}"#;
         let v = Json::parse(src).unwrap();
         // claves ordenadas en la forma canónica
-        assert_eq!(
-            v.to_compact(),
-            r#"{"a":"hola \"mundo\" á\n","b":[1,2.5,-300,true,false,null],"c":{}}"#
-        );
+        assert_eq!(v.to_compact(), r#"{"a":"hola \"mundo\" á\n","b":[1,2.5,-300,true,false,null],"c":{}}"#);
         let again = Json::parse(&v.to_compact()).unwrap();
         assert_eq!(v, again);
     }
@@ -649,16 +623,7 @@ mod tests {
         assert_eq!(fmt_num(1.0e-12), "1e-12");
         assert_eq!(fmt_num(1.5e25), "1.5e25");
         assert_eq!(fmt_num(123456789012345680.0), "123456789012345680");
-        for x in [
-            0.1,
-            1.0 / 3.0,
-            6.05e5,
-            1.85,
-            4.87,
-            1.0e-300,
-            2.5e-9,
-            98765.4321,
-        ] {
+        for x in [0.1, 1.0 / 3.0, 6.05e5, 1.85, 4.87, 1.0e-300, 2.5e-9, 98765.4321] {
             let t = fmt_num(x);
             let y: f64 = t.parse().unwrap();
             assert_eq!(x, y, "roundtrip de {}", t);
@@ -699,10 +664,7 @@ mod tests {
         assert!(Json::parse(&deep).is_err());
         let ok = format!("{}{}", "[".repeat(100), "]".repeat(100));
         assert!(Json::parse(&ok).is_ok());
-        let lim = Limits {
-            max_bytes: 10,
-            max_depth: 8,
-        };
+        let lim = Limits { max_bytes: 10, max_depth: 8 };
         assert!(Json::parse_with_limits("[1,2,3,4,5,6,7,8,9]", lim).is_err());
     }
 
@@ -722,10 +684,7 @@ mod tests {
     fn unicode_y_sustitutos() {
         let v = Json::parse(r#""\ud83d\ude00 ñ""#).unwrap();
         assert_eq!(v.as_str(), Some("😀 ñ"));
-        assert_eq!(
-            Json::str("tab\tctl\u{1}").to_compact(),
-            r#""tab\tctl\u0001""#
-        );
+        assert_eq!(Json::str("tab\tctl\u{1}").to_compact(), r#""tab\tctl\u0001""#);
     }
 
     #[test]

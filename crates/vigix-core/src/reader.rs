@@ -18,11 +18,7 @@ pub struct Scope<'a> {
 
 impl<'a> Scope<'a> {
     pub fn new(j: &'a Json, path: &str) -> Scope<'a> {
-        Scope {
-            j,
-            path: path.to_string(),
-            id: None,
-        }
+        Scope { j, path: path.to_string(), id: None }
     }
     pub fn with_id(mut self, id: &str) -> Scope<'a> {
         self.id = Some(id.to_string());
@@ -30,18 +26,10 @@ impl<'a> Scope<'a> {
     }
     /// Desciende a un campo (si no existe usa `Null`).
     pub fn child(&self, key: &str) -> Scope<'a> {
-        Scope {
-            j: self.j.field(key),
-            path: join(&self.path, key),
-            id: self.id.clone(),
-        }
+        Scope { j: self.j.field(key), path: join(&self.path, key), id: self.id.clone() }
     }
     pub fn item(&self, idx: usize, item: &'a Json) -> Scope<'a> {
-        Scope {
-            j: item,
-            path: join(&self.path, &idx.to_string()),
-            id: self.id.clone(),
-        }
+        Scope { j: item, path: join(&self.path, &idx.to_string()), id: self.id.clone() }
     }
     pub fn key_path(&self, key: &str) -> String {
         join(&self.path, key)
@@ -63,10 +51,7 @@ pub struct Reader {
 
 impl Reader {
     pub fn new(module: &str) -> Reader {
-        Reader {
-            module: module.to_string(),
-            issues: Vec::new(),
-        }
+        Reader { module: module.to_string(), issues: Vec::new() }
     }
 
     pub fn has_block(&self) -> bool {
@@ -78,11 +63,7 @@ impl Reader {
     }
 
     fn raise(&mut self, code: &str, s: &Scope, key: &str) -> Issue {
-        Issue::block(code)
-            .module(&self.module)
-            .path(&s.key_path(key))
-            .opt_object(s.id.as_deref())
-            .param("field", key)
+        Issue::block(code).module(&self.module).path(&s.key_path(key)).opt_object(s.id.as_deref()).param("field", key)
     }
 
     fn fail(&mut self, code: &str, s: &Scope, key: &str) {
@@ -111,9 +92,7 @@ impl Reader {
         if v > 0.0 {
             Some(v)
         } else {
-            let i = self
-                .raise("data.not_positive", s, key)
-                .param("value", crate::json::fmt_num(v));
+            let i = self.raise("data.not_positive", s, key).param("value", crate::json::fmt_num(v));
             self.issues.push(i);
             None
         }
@@ -124,9 +103,7 @@ impl Reader {
         if v >= 0.0 {
             Some(v)
         } else {
-            let i = self
-                .raise("data.negative", s, key)
-                .param("value", crate::json::fmt_num(v));
+            let i = self.raise("data.negative", s, key).param("value", crate::json::fmt_num(v));
             self.issues.push(i);
             None
         }
@@ -240,10 +217,7 @@ impl Reader {
         if allowed.contains(&v) {
             Some(v)
         } else {
-            let i = self
-                .raise("data.bad_enum", s, key)
-                .param("value", v)
-                .param("allowed", allowed.join("|"));
+            let i = self.raise("data.bad_enum", s, key).param("value", v).param("allowed", allowed.join("|"));
             self.issues.push(i);
             None
         }
@@ -267,24 +241,11 @@ mod tests {
         assert_eq!(r.f64_range(&s, "h", 6.0, 9.0), None);
         assert_eq!(r.f64_range(&s, "h", 1.0, 9.0), Some(5.0));
         let codes: Vec<&str> = r.issues.iter().map(|i| i.code.as_str()).collect();
-        assert_eq!(
-            codes,
-            [
-                "data.missing",
-                "data.missing",
-                "data.not_positive",
-                "data.negative",
-                "data.type",
-                "data.out_of_range"
-            ]
-        );
+        assert_eq!(codes, ["data.missing", "data.missing", "data.not_positive", "data.negative", "data.type", "data.out_of_range"]);
         assert!(r.has_block());
         assert_eq!(r.issues[0].path, "pipe.d");
         assert_eq!(r.issues[0].object.as_deref(), Some("P1"));
-        assert_eq!(
-            r.issues[0].params.get("field").map(String::as_str),
-            Some("d")
-        );
+        assert_eq!(r.issues[0].params.get("field").map(String::as_str), Some("d"));
     }
 
     #[test]
@@ -311,10 +272,7 @@ mod tests {
         assert_eq!(r.enum_str(&s, "k", &["pipe", "pump"]), Some("pipe"));
         assert_eq!(r.enum_str(&s, "z", &["pipe", "pump"]), None);
         assert_eq!(r.issues[0].code, "data.bad_enum");
-        assert_eq!(
-            r.issues[0].params.get("allowed").map(String::as_str),
-            Some("pipe|pump")
-        );
+        assert_eq!(r.issues[0].params.get("allowed").map(String::as_str), Some("pipe|pump"));
     }
 
     #[test]

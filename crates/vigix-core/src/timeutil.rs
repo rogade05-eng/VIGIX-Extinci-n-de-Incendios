@@ -107,15 +107,7 @@ pub fn iso8601_utc(unix: i64) -> String {
     let days = unix.div_euclid(86400);
     let rem = unix.rem_euclid(86400);
     let (y, m, d) = civil_from_days(days);
-    format!(
-        "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z",
-        y,
-        m,
-        d,
-        rem / 3600,
-        (rem % 3600) / 60,
-        rem % 60
-    )
+    format!("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z", y, m, d, rem / 3600, (rem % 3600) / 60, rem % 60)
 }
 
 pub fn parse_iso8601_utc(s: &str) -> Option<i64> {
@@ -142,10 +134,7 @@ mod tests {
         assert_eq!(iso8601_utc(0), "1970-01-01T00:00:00Z");
         // 2026-10-28T00:00:00Z (fecha de la especificación) = 1793145600
         assert_eq!(iso8601_utc(1_793_145_600), "2026-10-28T00:00:00Z");
-        assert_eq!(
-            parse_iso8601_utc("2026-10-28T00:00:00Z"),
-            Some(1_793_145_600)
-        );
+        assert_eq!(parse_iso8601_utc("2026-10-28T00:00:00Z"), Some(1_793_145_600));
         assert_eq!(iso8601_utc(951_782_400), "2000-02-29T00:00:00Z"); // bisiesto
     }
 
@@ -164,17 +153,7 @@ mod tests {
 
     #[test]
     fn fechas_invalidas() {
-        for bad in [
-            "2026-13-01",
-            "2026-02-29",
-            "2026-00-10",
-            "2026-1-10",
-            "26-10-10",
-            "2026/10/10",
-            "2026-10-1x",
-            "",
-            "2026-04-31",
-        ] {
+        for bad in ["2026-13-01", "2026-02-29", "2026-00-10", "2026-1-10", "26-10-10", "2026/10/10", "2026-10-1x", "", "2026-04-31"] {
             assert!(parse_date(bad).is_none(), "{}", bad);
         }
         assert!(parse_date("2028-02-29").is_some());

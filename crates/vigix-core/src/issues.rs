@@ -213,27 +213,13 @@ mod tests {
         assert_eq!(l.worst(), Some(Severity::Block));
         l.sort();
         let sev: Vec<Severity> = l.0.iter().map(|i| i.severity).collect();
-        assert_eq!(
-            sev,
-            vec![
-                Severity::Block,
-                Severity::Error,
-                Severity::Warning,
-                Severity::Info,
-                Severity::Pass
-            ]
-        );
+        assert_eq!(sev, vec![Severity::Block, Severity::Error, Severity::Warning, Severity::Info, Severity::Pass]);
         assert_eq!(l.count(Severity::Warning), 1);
     }
 
     #[test]
     fn json_ida_y_vuelta() {
-        let i = Issue::block("data.missing")
-            .module("water")
-            .path("a.b")
-            .object("P1")
-            .param("field", "diameter_mm")
-            .reference("S1:Tabla 3");
+        let i = Issue::block("data.missing").module("water").path("a.b").object("P1").param("field", "diameter_mm").reference("S1:Tabla 3");
         let j = i.to_json();
         let back = Issue::from_json(&j).unwrap();
         assert_eq!(i, back);
@@ -242,13 +228,7 @@ mod tests {
 
     #[test]
     fn severidad_texto() {
-        for s in [
-            Severity::Pass,
-            Severity::Info,
-            Severity::Warning,
-            Severity::Error,
-            Severity::Block,
-        ] {
+        for s in [Severity::Pass, Severity::Info, Severity::Warning, Severity::Error, Severity::Block] {
             assert_eq!(Severity::parse(s.as_str()), Some(s));
         }
         assert_eq!(Severity::parse("x"), None);

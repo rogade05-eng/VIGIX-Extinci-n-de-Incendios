@@ -1,0 +1,154 @@
+{
+ "description": "Depósito a presión 0 -> bomba (curva de 4 puntos) -> lazo -> 3 dispositivos",
+ "epanet": {
+  "flow_lpm": {
+   "PA": 635.3826820850372,
+   "PA2": 292.7831746637821,
+   "PBC": 582.1583233773708,
+   "PBE": 346.007589250803,
+   "PCF": 238.16082626581192,
+   "PD": 928.1659685075283,
+   "PU": 928.1659685075283
+  },
+  "head_bar": {
+   "A": 10.075715619884491,
+   "B": 9.932800485473633,
+   "C": 9.732301060195923,
+   "D": 10.270197368927002,
+   "E": 9.837179063919068,
+   "F": 9.647122098819732,
+   "T": 0.0
+  },
+  "pressure_bar": {
+   "A": 9.48731661988449,
+   "B": 9.344401485473632,
+   "C": 8.947769060195922,
+   "D": 10.270197368927002,
+   "E": 9.052647063919068,
+   "F": 8.862590098819732,
+   "T": 0.0
+  }
+ },
+ "gamma_bar_per_m": 0.0980665,
+ "hw": {
+  "K": 607332.965600807,
+  "m": 4.871,
+  "n": 1.852
+ },
+ "links": [
+  {
+   "curve": [
+    [
+     0,
+     12.0
+    ],
+    [
+     600,
+     11.2
+    ],
+    [
+     1200,
+     9.5
+    ],
+    [
+     1800,
+     6.0
+    ]
+   ],
+   "from": "T",
+   "id": "PU",
+   "kind": "pump",
+   "to": "D"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 100.0,
+   "from": "D",
+   "id": "PD",
+   "kind": "pipe",
+   "length_m": 40.0,
+   "to": "A"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 80.0,
+   "from": "A",
+   "id": "PA",
+   "kind": "pipe",
+   "length_m": 20.0,
+   "to": "B"
+  },
+  {
+   "c": 110,
+   "diameter_mm": 65.0,
+   "from": "A",
+   "id": "PA2",
+   "kind": "pipe",
+   "length_m": 26.0,
+   "to": "B"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 65.0,
+   "from": "B",
+   "id": "PBC",
+   "kind": "pipe",
+   "length_m": 12.0,
+   "to": "C"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 65.0,
+   "from": "B",
+   "id": "PBE",
+   "kind": "pipe",
+   "length_m": 15.0,
+   "to": "E"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 52.0,
+   "from": "C",
+   "id": "PCF",
+   "kind": "pipe",
+   "length_m": 9.0,
+   "to": "F"
+  }
+ ],
+ "name": "bomba_deposito_malla",
+ "nodes": [
+  {
+   "elevation_m": 0.0,
+   "fixed_pressure_bar": 0.0,
+   "id": "T"
+  },
+  {
+   "elevation_m": 0.0,
+   "id": "D"
+  },
+  {
+   "elevation_m": 6.0,
+   "id": "A"
+  },
+  {
+   "elevation_m": 6.0,
+   "id": "B"
+  },
+  {
+   "device_k": 115.0,
+   "elevation_m": 8.0,
+   "id": "C"
+  },
+  {
+   "device_k": 115.0,
+   "elevation_m": 8.0,
+   "id": "E"
+  },
+  {
+   "demand_lpm": 0.0,
+   "device_k": 80.0,
+   "elevation_m": 8.0,
+   "id": "F"
+  }
+ ]
+}

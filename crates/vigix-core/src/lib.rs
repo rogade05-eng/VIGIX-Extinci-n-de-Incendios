@@ -11,8 +11,13 @@
 //! * Mismas entradas + mismo perfil => mismo resultado y misma huella SHA-256.
 
 #![forbid(unsafe_code)]
+// `Issue` lleva ruta, parámetros y referencia (diagnóstico completo). Es el valor de error de los
+// accesores de perfil; el camino de error no es crítico en rendimiento.
+#![allow(clippy::result_large_err)]
 
+pub mod calc;
 pub mod hash;
+pub mod hydraulics;
 pub mod issues;
 pub mod json;
 pub mod profile;

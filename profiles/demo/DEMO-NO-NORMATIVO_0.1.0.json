@@ -1,0 +1,113 @@
+{
+  "schema": "vigix.profile/1",
+  "profile_code": "DEMO-NO-NORMATIVO",
+  "profile_version": "0.1.0",
+  "demo": true,
+  "title": {
+    "es": "PERFIL DE DEMOSTRACIÓN — VALORES FICTICIOS, NO NORMATIVO, SOLO PARA PROBAR EL SOFTWARE",
+    "en": "DEMONSTRATION PROFILE — FICTITIOUS VALUES, NOT NORMATIVE, FOR SOFTWARE TESTING ONLY"
+  },
+  "family": "OTRA",
+  "country": "ZZ",
+  "region": "N/A",
+  "authority": "N/A (perfil de demostración, sin autoridad)",
+  "language": "es",
+  "unit_system": "SI",
+  "sources": [
+    {
+      "id": "DEMO",
+      "body": "VIGIX (contratista)",
+      "code": "DEMO-0",
+      "title": "Valores ficticios de demostración; no proceden de ninguna norma",
+      "edition": "0",
+      "effective_date": "2026-10-28",
+      "amendments": [],
+      "license_note": "Sin contenido normativo ni texto protegido."
+    }
+  ],
+  "scope": {
+    "systems": ["wet_pipe_sprinkler"],
+    "exclusions": [
+      "Todo uso real: este perfil NO representa ninguna norma ni código.",
+      "Cualquier resultado obtenido con él es solo una demostración del funcionamiento del software."
+    ]
+  },
+  "methods": {
+    "hydraulics.friction": "hazen_williams.power_law_si.v1",
+    "hydraulics.fittings": "equivalent_length_table.v1"
+  },
+  "parameters": {
+    "hydraulics": {
+      "fluid": {
+        "density": { "value": 1000, "unit": "kg/m3", "ref": "DEMO: valor de prueba (agua), sin fuente normativa" }
+      },
+      "friction": {
+        "coefficient": { "value": 605000, "unit": "-", "ref": "DEMO: constante de prueba de la forma H-W en base SI (bar, L/min, mm, m)" },
+        "exponent_flow": { "value": 1.85, "unit": "-", "ref": "DEMO: valor de prueba" },
+        "exponent_diameter": { "value": 4.87, "unit": "-", "ref": "DEMO: valor de prueba" }
+      },
+      "supply": {
+        "curve_exponent": { "value": 1.85, "unit": "-", "ref": "DEMO: valor de prueba" }
+      },
+      "limits": {
+        "max_velocity": { "value": 12, "unit": "m/s", "ref": "DEMO: límite ficticio, NO es un criterio de aceptación real" }
+      }
+    }
+  },
+  "tables": {
+    "hydraulics.fittings_equiv_length": {
+      "keys": ["fitting"],
+      "value_unit": "m",
+      "rows": [
+        { "fitting": "elbow_90", "from": 0, "to": 60, "value": 1.0, "ref": "DEMO: valor ficticio" },
+        { "fitting": "elbow_90", "from": 60, "to": 1000, "to_inclusive": true, "value": 2.0, "ref": "DEMO: valor ficticio" },
+        { "fitting": "tee_run", "from": 0, "to": 60, "value": 0.5, "ref": "DEMO: valor ficticio" },
+        { "fitting": "tee_run", "from": 60, "to": 1000, "to_inclusive": true, "value": 1.0, "ref": "DEMO: valor ficticio" },
+        { "fitting": "tee_branch", "from": 0, "to": 60, "value": 2.0, "ref": "DEMO: valor ficticio" },
+        { "fitting": "tee_branch", "from": 60, "to": 1000, "to_inclusive": true, "value": 4.0, "ref": "DEMO: valor ficticio" },
+        { "fitting": "gate_valve", "from": 0, "to": 1000, "to_inclusive": true, "value": 0.3, "ref": "DEMO: valor ficticio" }
+      ]
+    },
+    "hydraulics.design_density": {
+      "keys": ["hazard_class"],
+      "value_unit": "L/min/m2",
+      "rows": [
+        { "hazard_class": "demo_low", "value": 2.0, "ref": "DEMO: valor ficticio" },
+        { "hazard_class": "demo_medium", "value": 4.0, "ref": "DEMO: valor ficticio" },
+        { "hazard_class": "demo_high", "value": 8.0, "ref": "DEMO: valor ficticio" }
+      ]
+    },
+    "hydraulics.design_area": {
+      "keys": ["hazard_class"],
+      "value_unit": "m2",
+      "rows": [
+        { "hazard_class": "demo_low", "value": 24.0, "ref": "DEMO: valor ficticio" },
+        { "hazard_class": "demo_medium", "value": 36.0, "ref": "DEMO: valor ficticio" },
+        { "hazard_class": "demo_high", "value": 48.0, "ref": "DEMO: valor ficticio" }
+      ]
+    },
+    "hydraulics.supply_duration": {
+      "keys": ["hazard_class"],
+      "value_unit": "min",
+      "rows": [
+        { "hazard_class": "demo_low", "value": 10, "ref": "DEMO: valor ficticio" },
+        { "hazard_class": "demo_medium", "value": 20, "ref": "DEMO: valor ficticio" },
+        { "hazard_class": "demo_high", "value": 30, "ref": "DEMO: valor ficticio" }
+      ]
+    }
+  },
+  "validity": { "effective_date": "2026-10-28", "expires": null },
+  "authorship": {
+    "author": "VIGIX (contratista)",
+    "reviewer": "",
+    "date": "2026-10-28",
+    "approval_status": "borrador",
+    "approval_ref": "",
+    "sha256": ""
+  },
+  "test_cases": [],
+  "changelog": [
+    { "version": "0.1.0", "date": "2026-10-28", "change": "Creación del perfil de demostración (hidráulica). Sin valor normativo." }
+  ],
+  "compatibility": { "supersedes": null, "min_engine": "0.1.0", "notes": "Perfil de demostración: no usar para proyectos reales." }
+}

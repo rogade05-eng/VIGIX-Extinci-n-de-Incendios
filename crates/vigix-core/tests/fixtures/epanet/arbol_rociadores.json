@@ -1,0 +1,181 @@
+{
+ "description": "Depósito -> principal -> 2 ramales con 4 rociadores cada uno (K 80 y 115), cotas distintas",
+ "epanet": {
+  "flow_lpm": {
+   "PB00": 676.373541355133,
+   "PB01": 502.5237612426281,
+   "PB02": 331.12180419266224,
+   "PB03": 163.8563582673669,
+   "PB10": 932.5842931866646,
+   "PB11": 686.9673728942871,
+   "PB12": 447.77766801416874,
+   "PB13": 219.41591519862413,
+   "PM": 1608.9577227830887
+  },
+  "head_bar": {
+   "B0S0": 5.114725150617599,
+   "B0S1": 4.982676324897766,
+   "B0S2": 4.763785689929962,
+   "B0S3": 4.587407472284317,
+   "B1S0": 5.051970506446838,
+   "B1S1": 4.81635824335289,
+   "B1S2": 4.433552706756592,
+   "B1S3": 4.130661132448196,
+   "M1": 5.19193104637146,
+   "R": 5.999999919160843
+  },
+  "pressure_bar": {
+   "B0S0": 4.7224591506176,
+   "B0S1": 4.590410324897766,
+   "B0S2": 4.371519689929962,
+   "B0S3": 4.195141472284317,
+   "B1S0": 4.561638006446838,
+   "B1S1": 4.32602574335289,
+   "B1S2": 3.943220206756592,
+   "B1S3": 3.6403286324481963,
+   "M1": 4.79966504637146,
+   "R": 5.999999919160843
+  }
+ },
+ "gamma_bar_per_m": 0.0980665,
+ "hw": {
+  "K": 607332.965600807,
+  "m": 4.871,
+  "n": 1.852
+ },
+ "links": [
+  {
+   "c": 120,
+   "diameter_mm": 100.0,
+   "from": "R",
+   "id": "PM",
+   "kind": "pipe",
+   "length_m": 60.0,
+   "to": "M1"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 65.0,
+   "from": "M1",
+   "id": "PB00",
+   "kind": "pipe",
+   "length_m": 3.5,
+   "to": "B0S0"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 52.0,
+   "from": "B0S0",
+   "id": "PB01",
+   "kind": "pipe",
+   "length_m": 3.5,
+   "to": "B0S1"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 40.0,
+   "from": "B0S1",
+   "id": "PB02",
+   "kind": "pipe",
+   "length_m": 3.5,
+   "to": "B0S2"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 32.0,
+   "from": "B0S2",
+   "id": "PB03",
+   "kind": "pipe",
+   "length_m": 3.5,
+   "to": "B0S3"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 65.0,
+   "from": "M1",
+   "id": "PB10",
+   "kind": "pipe",
+   "length_m": 3.5,
+   "to": "B1S0"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 52.0,
+   "from": "B1S0",
+   "id": "PB11",
+   "kind": "pipe",
+   "length_m": 3.5,
+   "to": "B1S1"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 40.0,
+   "from": "B1S1",
+   "id": "PB12",
+   "kind": "pipe",
+   "length_m": 3.5,
+   "to": "B1S2"
+  },
+  {
+   "c": 120,
+   "diameter_mm": 32.0,
+   "from": "B1S2",
+   "id": "PB13",
+   "kind": "pipe",
+   "length_m": 3.5,
+   "to": "B1S3"
+  }
+ ],
+ "name": "arbol_rociadores",
+ "nodes": [
+  {
+   "elevation_m": 0.0,
+   "fixed_pressure_bar": 6.0,
+   "id": "R"
+  },
+  {
+   "elevation_m": 4.0,
+   "id": "M1"
+  },
+  {
+   "device_k": 80.0,
+   "elevation_m": 4.0,
+   "id": "B0S0"
+  },
+  {
+   "device_k": 80.0,
+   "elevation_m": 4.0,
+   "id": "B0S1"
+  },
+  {
+   "device_k": 80.0,
+   "elevation_m": 4.0,
+   "id": "B0S2"
+  },
+  {
+   "device_k": 80.0,
+   "elevation_m": 4.0,
+   "id": "B0S3"
+  },
+  {
+   "device_k": 115.0,
+   "elevation_m": 5.0,
+   "id": "B1S0"
+  },
+  {
+   "device_k": 115.0,
+   "elevation_m": 5.0,
+   "id": "B1S1"
+  },
+  {
+   "device_k": 115.0,
+   "elevation_m": 5.0,
+   "id": "B1S2"
+  },
+  {
+   "device_k": 115.0,
+   "elevation_m": 5.0,
+   "id": "B1S3"
+  }
+ ]
+}

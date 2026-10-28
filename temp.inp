@@ -1,0 +1,196 @@
+[TITLE]
+
+[JUNCTIONS]
+;ID                      Elevation       Demand Pattern                 
+ N0                      17.519685039               0                            ;
+ N1                      14.009186352               0                            ;
+ N2                      10.236220472               0                            ;
+ N3                      14.337270341               0                            ;
+ N4                      0.7217847769               0                            ;
+ N5                       14.69816273               0                            ;
+ N6                      3.3464566929    16.933428556                            ;
+ N7                      4.4947506562               0                            ;
+ N8                      10.072178478    30.142031174                            ;
+ N9                      6.5288713911               0                            ;
+ N10                     7.6115485564               0                            ;
+ N11                     12.926509186               0                            ;
+ N12                     8.7926509186               0                            ;
+ N13                     4.5603674541    30.591123663                            ;
+ N14                     4.4947506562               0                            ;
+ N15                     14.829396325               0                            ;
+ N16                     15.223097113               0                            ;
+ N17                     10.793963255               0                            ;
+ N18                     7.5787401575               0                            ;
+ N19                     3.9041994751               0                            ;
+ N20                     12.598425197               0                            ;
+ N21                     9.3503937008               0                            ;
+ N22                      18.43832021               0                            ;
+ N23                      11.87664042               0                            ;
+
+[RESERVOIRS]
+;ID                                   Head                  Pattern
+ R                       296.11247379                            ;
+
+[TANKS]
+;ID                              Elevation           Init Level            Min Level            Max Level             Diameter           Min Volume Volume Curve         Overflow            
+
+[PIPES]
+;ID                   Node1                Node2                              Length             Diameter            Roughness           Minor Loss               Status
+ T0                   R                    N0                      37.992125984    2.0472440945             120               0                 Open   ;
+ T1                   R                    N1                      76.443569554     3.937007874             100               0                 Open   ;
+ T2                   N0                   N2                      52.985564304    2.5590551181             100               0                 Open   ;
+ T3                   N0                   N3                      65.255905512     3.937007874             120               0                 Open   ;
+ T4                   N2                   N4                      40.583989501    2.0472440945             100               0                 Open   ;
+ T5                   N3                   N5                      33.825459318    2.0472440945             120               0                 Open   ;
+ T6                   N2                   N6                      33.070866142    3.1496062992             100               0                 Open   ;
+ T7                   R                    N7                      27.559055118    2.0472440945             140               0                 Open   ;
+ T8                   N7                   N8                      66.043307087    2.5590551181             120               0                 Open   ;
+ T9                   N2                   N9                      59.908136483    2.5590551181             140               0                 Open   ;
+ T10                  N8                   N10                     43.963254593    2.5590551181             140               0                 Open   ;
+ T11                  N1                   N11                     22.965879265     3.937007874             140               0                 Open   ;
+ T12                  N4                   N12                     16.272965879     3.937007874             120               0                 Open   ;
+ T13                  N5                   N13                     65.813648294    1.5748031496             140               0                 Open   ;
+ T14                  N5                   N14                     78.477690289    3.1496062992             120               0                 Open   ;
+ T15                  N3                   N15                     57.578740157    3.1496062992             140               0                 Open   ;
+ T16                  N5                   N16                     53.412073491    2.5590551181             100               0                 Open   ;
+ T17                  N6                   N17                     28.805774278     3.937007874             100               0                 Open   ;
+ T18                  N15                  N18                     53.346456693    2.5590551181             100               0                 Open   ;
+ T19                  N9                   N19                     28.805774278    3.1496062992             140               0                 Open   ;
+ T20                  N17                  N20                     52.296587927    1.5748031496             100               0                 Open   ;
+ T21                  N15                  N21                     38.090551181    1.5748031496             140               0                 Open   ;
+ T22                  N14                  N22                      63.45144357    2.0472440945             120               0                 Open   ;
+ T23                  N15                  N23                     17.421259843    3.1496062992             140               0                 Open   ;
+ L24                  N0                   N18                     80.971128609    3.1496062992             140               0                 Open   ;
+ L25                  N13                  N6                      46.292650919     3.937007874             100               0                 Open   ;
+ L26                  N12                  N8                      30.774278215    2.0472440945             140               0                 Open   ;
+ L27                  N12                  N9                      24.901574803    1.5748031496             140               0                 Open   ;
+ L28                  N15                  N7                      60.236220472    1.5748031496             140               0                 Open   ;
+ L29                  N21                  N23                     36.909448819    2.0472440945             100               0                 Open   ;
+
+[PUMPS]
+;ID                   Node1                Node2                Properties          
+
+[VALVES]
+;ID                   Node1                Node2                            Diameter Type              Setting           Minor Loss
+
+[TAGS]
+;type      name       tag       
+
+[DEMANDS]
+;ID        Demand     Pattern   
+
+[STATUS]
+;ID        Setting   
+
+[PATTERNS]
+;ID        Multipliers
+
+[CURVES]
+;ID         X-Value      Y-Value     
+
+[CONTROLS]
+
+[RULES]
+
+[ENERGY]
+GLOBAL PRICE           0.0000
+
+[EMITTERS]
+;ID        Flow coefficient
+N4         7.979178583469804
+N5         3.954897210937207
+N7         7.979178583469804
+N9         11.101465855262337
+N11        3.954897210937207
+N14        3.954897210937207
+N15        3.954897210937207
+N17        3.954897210937207
+N18        5.550732927631168
+N22        5.550732927631168
+N23        11.101465855262337
+
+[QUALITY]
+
+[SOURCES]
+;Node      Type       Quality    Pattern   
+
+[REACTIONS]
+;Type           Pipe/Tank               Coefficient
+
+ ORDER BULK 1
+ ORDER TANK 1
+ ORDER WALL 1
+ GLOBAL BULK 0.0000    
+ GLOBAL WALL 0.0000    
+
+[MIXING]
+;Tank ID             Model Fraction
+
+[TIMES]
+DURATION             00:00:00
+HYDRAULIC TIMESTEP   01:00:00
+QUALITY TIMESTEP     00:06:00
+PATTERN TIMESTEP     01:00:00
+PATTERN START        00:00:00
+REPORT TIMESTEP      01:00:00
+REPORT START         00:00:00
+START CLOCKTIME      00:00:00 AM
+RULE TIMESTEP        00:06:00
+STATISTIC            NONE      
+
+[REPORT]
+
+[OPTIONS]
+UNITS                GPM                 
+HEADLOSS             H-W                 
+SPECIFIC GRAVITY     1
+VISCOSITY            1
+TRIALS               2000
+ACCURACY             1e-09
+CHECKFREQ            2
+MAXCHECK             10
+UNBALANCED           STOP                
+PATTERN              1                   
+DEMAND MULTIPLIER    1
+EMITTER EXPONENT     0.5
+QUALITY              NONE                
+DIFFUSIVITY          1
+TOLERANCE            0.01
+
+[COORDINATES]
+;Node      X-Coord    Y-Coord   
+R                   0.000000000          0.000000000
+N0                  0.000000000          0.000000000
+N1                  0.000000000          0.000000000
+N2                  0.000000000          0.000000000
+N3                  0.000000000          0.000000000
+N4                  0.000000000          0.000000000
+N5                  0.000000000          0.000000000
+N6                  0.000000000          0.000000000
+N7                  0.000000000          0.000000000
+N8                  0.000000000          0.000000000
+N9                  0.000000000          0.000000000
+N10                 0.000000000          0.000000000
+N11                 0.000000000          0.000000000
+N12                 0.000000000          0.000000000
+N13                 0.000000000          0.000000000
+N14                 0.000000000          0.000000000
+N15                 0.000000000          0.000000000
+N16                 0.000000000          0.000000000
+N17                 0.000000000          0.000000000
+N18                 0.000000000          0.000000000
+N19                 0.000000000          0.000000000
+N20                 0.000000000          0.000000000
+N21                 0.000000000          0.000000000
+N22                 0.000000000          0.000000000
+N23                 0.000000000          0.000000000
+
+[VERTICES]
+;Link      X-Coord    Y-Coord   
+
+[LABELS]
+
+[BACKDROP]
+UNITS    NONE
+
+[END]
