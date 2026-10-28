@@ -1,0 +1,31 @@
+# --- Rust ---
+/target/
+/src-tauri/target/
+/src-tauri/gen/
+**/*.rs.bk
+# --- Node ---
+node_modules/
+# --- Salidas de compilación y empaquetado ---
+/dist/
+/build/
+/out/
+/release/
+# --- Datos locales y registros ---
+/data/
+/logs/
+*.log
+*.tmp
+*.vigix-autosave
+# --- Editor / SO ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+# --- Seguridad: jamás versionar claves privadas (contrato 8.4 / 10) ---
+*.pem
+*.key
+*.p12
+*.pfx
+*.snk
+*private*key*
+/secrets/

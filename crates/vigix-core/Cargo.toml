@@ -1,0 +1,17 @@
+[package]
+name = "vigix-core"
+description = "VIGIX EXTINCIÓN FIJA - motor de cálculo determinista, perfiles normativos, validación y exportación (sin dependencias externas)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+# Contrato 8.1/8.4: el motor no depende de ningún crate externo.
+[dependencies]
+
+[lib]
+doctest = false
+
+[lints.rust]
+unsafe_code = "forbid"

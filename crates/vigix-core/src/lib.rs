@@ -1,0 +1,28 @@
+//! # vigix-core
+//!
+//! Motor de VIGIX EXTINCIÓN FIJA: dominio, perfiles normativos, validación, cálculo
+//! determinista y exportación. **Sin dependencias externas** (contrato 8.1 y 8.4).
+//!
+//! Principios de diseño que este crate hace cumplir:
+//! * Ningún valor normativo (factor, distancia, densidad, presión, tiempo, concentración)
+//!   está escrito en el código: todos vienen de un *perfil normativo* versionado.
+//! * Ningún dato faltante se sustituye por cero ni por un supuesto oculto: el cálculo se
+//!   bloquea y devuelve una incidencia que localiza el dato.
+//! * Mismas entradas + mismo perfil => mismo resultado y misma huella SHA-256.
+
+#![forbid(unsafe_code)]
+
+pub mod hash;
+pub mod issues;
+pub mod json;
+pub mod profile;
+pub mod reader;
+pub mod timeutil;
+pub mod units;
+
+/// Versión del motor de cálculo. Los resultados guardados se marcan obsoletos si cambia
+/// (contrato 9.1).
+pub const ENGINE_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+/// Nombre comercial del producto (decisión del cliente).
+pub const PRODUCT_NAME: &str = "VIGIX EXTINCIÓN FIJA";

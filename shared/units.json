@@ -1,0 +1,317 @@
+{
+  "display": {
+    "SI": {
+      "angle": [
+        "angle",
+        "deg"
+      ],
+      "application_rate": [
+        "application_rate",
+        "L/min/m2"
+      ],
+      "area": [
+        "area",
+        "m2"
+      ],
+      "concentration": [
+        "concentration",
+        "%"
+      ],
+      "density": [
+        "density",
+        "kg/m3"
+      ],
+      "dimensionless": [
+        "dimensionless",
+        "-"
+      ],
+      "flow": [
+        "flow",
+        "L/min"
+      ],
+      "k_factor": [
+        "k_factor",
+        "L/min/bar^0.5"
+      ],
+      "length": [
+        "length",
+        "m"
+      ],
+      "length_small": [
+        "length",
+        "mm"
+      ],
+      "mass": [
+        "mass",
+        "kg"
+      ],
+      "mass_flow": [
+        "mass_flow",
+        "kg/s"
+      ],
+      "pressure": [
+        "pressure",
+        "bar"
+      ],
+      "specific_volume": [
+        "specific_volume",
+        "m3/kg"
+      ],
+      "temperature": [
+        "temperature",
+        "C"
+      ],
+      "time": [
+        "time",
+        "min"
+      ],
+      "velocity": [
+        "velocity",
+        "m/s"
+      ],
+      "volume": [
+        "volume",
+        "m3"
+      ],
+      "volume_small": [
+        "volume",
+        "L"
+      ]
+    },
+    "US": {
+      "angle": [
+        "angle",
+        "deg"
+      ],
+      "application_rate": [
+        "application_rate",
+        "gpm/ft2"
+      ],
+      "area": [
+        "area",
+        "ft2"
+      ],
+      "concentration": [
+        "concentration",
+        "%"
+      ],
+      "density": [
+        "density",
+        "lb/ft3"
+      ],
+      "dimensionless": [
+        "dimensionless",
+        "-"
+      ],
+      "flow": [
+        "flow",
+        "gpm"
+      ],
+      "k_factor": [
+        "k_factor",
+        "gpm/psi^0.5"
+      ],
+      "length": [
+        "length",
+        "ft"
+      ],
+      "length_small": [
+        "length",
+        "in"
+      ],
+      "mass": [
+        "mass",
+        "lb"
+      ],
+      "mass_flow": [
+        "mass_flow",
+        "lb/s"
+      ],
+      "pressure": [
+        "pressure",
+        "psi"
+      ],
+      "specific_volume": [
+        "specific_volume",
+        "ft3/lb"
+      ],
+      "temperature": [
+        "temperature",
+        "F"
+      ],
+      "time": [
+        "time",
+        "min"
+      ],
+      "velocity": [
+        "velocity",
+        "ft/s"
+      ],
+      "volume": [
+        "volume",
+        "ft3"
+      ],
+      "volume_small": [
+        "volume",
+        "gal_us"
+      ]
+    }
+  },
+  "gravedad_estandar_m_s2": 9.80665,
+  "nota": "Generado por scripts/generar_unidades.py. Factor = cuántas unidades canónicas hay en 1 unidad. Solo definiciones exactas; ningún valor normativo de protección contra incendios.",
+  "quantities": {
+    "angle": {
+      "canonical": "deg",
+      "units": {
+        "deg": 1.0,
+        "rad": 57.29577951308232
+      }
+    },
+    "application_rate": {
+      "canonical": "L/min/m2",
+      "units": {
+        "L/min/m2": 1.0,
+        "gpm/ft2": 40.74583333333333,
+        "mm/min": 1.0
+      }
+    },
+    "area": {
+      "canonical": "m2",
+      "units": {
+        "cm2": 0.0001,
+        "ft2": 0.09290304,
+        "in2": 0.00064516,
+        "m2": 1.0,
+        "mm2": 1e-06
+      }
+    },
+    "concentration": {
+      "canonical": "%",
+      "units": {
+        "%": 1.0,
+        "fraction": 100.0
+      }
+    },
+    "density": {
+      "canonical": "kg/m3",
+      "units": {
+        "kg/m3": 1.0,
+        "lb/ft3": 16.018463373960138
+      }
+    },
+    "dimensionless": {
+      "canonical": "-",
+      "units": {
+        "-": 1.0
+      }
+    },
+    "flow": {
+      "canonical": "L/min",
+      "units": {
+        "L/min": 1.0,
+        "L/s": 60.0,
+        "gpm": 3.785411784,
+        "m3/h": 16.666666666666668,
+        "m3/s": 60000.0
+      }
+    },
+    "k_factor": {
+      "canonical": "L/min/bar^0.5",
+      "units": {
+        "L/min/bar^0.5": 1.0,
+        "gpm/psi^0.5": 14.416294257371696
+      }
+    },
+    "length": {
+      "canonical": "m",
+      "units": {
+        "cm": 0.01,
+        "ft": 0.3048,
+        "in": 0.0254,
+        "km": 1000.0,
+        "m": 1.0,
+        "mm": 0.001,
+        "yd": 0.9144
+      }
+    },
+    "mass": {
+      "canonical": "kg",
+      "units": {
+        "g": 0.001,
+        "kg": 1.0,
+        "lb": 0.45359237
+      }
+    },
+    "mass_flow": {
+      "canonical": "kg/s",
+      "units": {
+        "kg/s": 1.0,
+        "lb/s": 0.45359237
+      }
+    },
+    "pressure": {
+      "canonical": "bar",
+      "units": {
+        "MPa": 10.0,
+        "Pa": 1e-05,
+        "atm": 1.01325,
+        "bar": 1.0,
+        "kPa": 0.01,
+        "mbar": 0.001,
+        "psi": 0.06894757293168362
+      }
+    },
+    "specific_volume": {
+      "canonical": "m3/kg",
+      "units": {
+        "ft3/lb": 0.06242796057614461,
+        "m3/kg": 1.0
+      }
+    },
+    "temperature": {
+      "affine": {
+        "C": [
+          1.0,
+          0.0
+        ],
+        "F": [
+          0.5555555555555556,
+          -17.77777777777778
+        ],
+        "K": [
+          1.0,
+          -273.15
+        ]
+      },
+      "canonical": "C"
+    },
+    "time": {
+      "canonical": "s",
+      "units": {
+        "h": 3600.0,
+        "min": 60.0,
+        "s": 1.0
+      }
+    },
+    "velocity": {
+      "canonical": "m/s",
+      "units": {
+        "ft/s": 0.3048,
+        "km/h": 0.2777777777777778,
+        "m/s": 1.0
+      }
+    },
+    "volume": {
+      "canonical": "m3",
+      "units": {
+        "L": 0.001,
+        "ft3": 0.028316846592,
+        "gal_us": 0.003785411784,
+        "in3": 1.6387064e-05,
+        "m3": 1.0,
+        "mL": 1e-06
+      }
+    }
+  },
+  "schema": "vigix.units/1"
+}

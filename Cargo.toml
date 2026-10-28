@@ -1,0 +1,28 @@
+# VIGIX EXTINCIÓN FIJA - workspace de Rust.
+#
+# El motor de cálculo (vigix-core) NO tiene dependencias externas a propósito:
+# superficie de auditoría mínima y compilación reproducible (contrato 8.1/8.4).
+# src-tauri (shell de escritorio, SQLite, verificación de licencias) tiene su
+# propio workspace porque necesita crates de crates.io; ver docs/01_ARQUITECTURA.md.
+[workspace]
+resolver = "2"
+members = ["crates/vigix-core", "crates/vigix-cli"]
+exclude = ["src-tauri"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+authors = ["VIGIX"]
+publish = false
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "unwind"   # el límite de la API captura pánicos y los convierte en error explícito
+debug = false
+strip = "symbols"
+
+[profile.dev]
+opt-level = 1      # los casos hidráulicos de prueba son demasiado lentos en opt-level 0
