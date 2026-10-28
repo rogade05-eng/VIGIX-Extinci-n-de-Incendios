@@ -3,10 +3,7 @@
   "profile_code": "DEMO-NO-NORMATIVO",
   "profile_version": "0.1.0",
   "demo": true,
-  "title": {
-    "es": "PERFIL DE DEMOSTRACIÓN — VALORES FICTICIOS, NO NORMATIVO, SOLO PARA PROBAR EL SOFTWARE",
-    "en": "DEMONSTRATION PROFILE — FICTITIOUS VALUES, NOT NORMATIVE, FOR SOFTWARE TESTING ONLY"
-  },
+  "title": {"es": "PERFIL DE DEMOSTRACIÓN — VALORES FICTICIOS, NO NORMATIVO, SOLO PARA PROBAR EL SOFTWARE", "en": "DEMONSTRATION PROFILE — FICTITIOUS VALUES, NOT NORMATIVE, FOR SOFTWARE TESTING ONLY"},
   "family": "OTRA",
   "country": "ZZ",
   "region": "N/A",
@@ -26,32 +23,29 @@
     }
   ],
   "scope": {
-    "systems": ["wet_pipe_sprinkler"],
-    "exclusions": [
-      "Todo uso real: este perfil NO representa ninguna norma ni código.",
-      "Cualquier resultado obtenido con él es solo una demostración del funcionamiento del software."
-    ]
+    "systems": ["portable_extinguishers", "wet_pipe_sprinkler"],
+    "exclusions": ["Todo uso real: este perfil NO representa ninguna norma ni código.", "Cualquier resultado obtenido con él es solo una demostración del funcionamiento del software."]
   },
-  "methods": {
-    "hydraulics.friction": "hazen_williams.power_law_si.v1",
-    "hydraulics.fittings": "equivalent_length_table.v1"
-  },
+  "methods": {"hydraulics.friction": "hazen_williams.power_law_si.v1", "hydraulics.fittings": "equivalent_length_table.v1", "extinguishers.coverage": "travel_distance_and_area_per_unit.v1"},
   "parameters": {
     "hydraulics": {
       "fluid": {
-        "density": { "value": 1000, "unit": "kg/m3", "ref": "DEMO: valor de prueba (agua), sin fuente normativa" }
+        "density": {"value": 1000, "unit": "kg/m3", "ref": "DEMO: valor de prueba (agua), sin fuente normativa"}
       },
       "friction": {
-        "coefficient": { "value": 605000, "unit": "-", "ref": "DEMO: constante de prueba de la forma H-W en base SI (bar, L/min, mm, m)" },
-        "exponent_flow": { "value": 1.85, "unit": "-", "ref": "DEMO: valor de prueba" },
-        "exponent_diameter": { "value": 4.87, "unit": "-", "ref": "DEMO: valor de prueba" }
+        "coefficient": {"value": 605000, "unit": "-", "ref": "DEMO: constante de prueba de la forma H-W en base SI (bar, L/min, mm, m)"},
+        "exponent_flow": {"value": 1.85, "unit": "-", "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        "exponent_diameter": {"value": 4.87, "unit": "-", "ref": "DEMO: valor ficticio, sin fuente normativa"}
       },
       "supply": {
-        "curve_exponent": { "value": 1.85, "unit": "-", "ref": "DEMO: valor de prueba" }
+        "curve_exponent": {"value": 1.85, "unit": "-", "ref": "DEMO: valor ficticio, sin fuente normativa"}
       },
       "limits": {
-        "max_velocity": { "value": 12, "unit": "m/s", "ref": "DEMO: límite ficticio, NO es un criterio de aceptación real" }
+        "max_velocity": {"value": 12, "unit": "m/s", "ref": "DEMO: límite ficticio, NO es un criterio de aceptación real"}
       }
+    },
+    "extinguishers": {
+      "max_mount_height": {"value": 1.5, "unit": "m", "ref": "DEMO: valor ficticio, sin fuente normativa"}
     }
   },
   "tables": {
@@ -59,55 +53,111 @@
       "keys": ["fitting"],
       "value_unit": "m",
       "rows": [
-        { "fitting": "elbow_90", "from": 0, "to": 60, "value": 1.0, "ref": "DEMO: valor ficticio" },
-        { "fitting": "elbow_90", "from": 60, "to": 1000, "to_inclusive": true, "value": 2.0, "ref": "DEMO: valor ficticio" },
-        { "fitting": "tee_run", "from": 0, "to": 60, "value": 0.5, "ref": "DEMO: valor ficticio" },
-        { "fitting": "tee_run", "from": 60, "to": 1000, "to_inclusive": true, "value": 1.0, "ref": "DEMO: valor ficticio" },
-        { "fitting": "tee_branch", "from": 0, "to": 60, "value": 2.0, "ref": "DEMO: valor ficticio" },
-        { "fitting": "tee_branch", "from": 60, "to": 1000, "to_inclusive": true, "value": 4.0, "ref": "DEMO: valor ficticio" },
-        { "fitting": "gate_valve", "from": 0, "to": 1000, "to_inclusive": true, "value": 0.3, "ref": "DEMO: valor ficticio" }
+        {"fitting": "elbow_90", "from": 0, "to": 60, "value": 1.0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"fitting": "elbow_90", "from": 60, "to": 1000, "to_inclusive": true, "value": 2.0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"fitting": "tee_run", "from": 0, "to": 60, "value": 0.5, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"fitting": "tee_run", "from": 60, "to": 1000, "to_inclusive": true, "value": 1.0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"fitting": "tee_branch", "from": 0, "to": 60, "value": 2.0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"fitting": "tee_branch", "from": 60, "to": 1000, "to_inclusive": true, "value": 4.0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"fitting": "gate_valve", "from": 0, "to": 1000, "to_inclusive": true, "value": 0.3, "ref": "DEMO: valor ficticio, sin fuente normativa"}
       ]
     },
     "hydraulics.design_density": {
       "keys": ["hazard_class"],
       "value_unit": "L/min/m2",
       "rows": [
-        { "hazard_class": "demo_low", "value": 2.0, "ref": "DEMO: valor ficticio" },
-        { "hazard_class": "demo_medium", "value": 4.0, "ref": "DEMO: valor ficticio" },
-        { "hazard_class": "demo_high", "value": 8.0, "ref": "DEMO: valor ficticio" }
+        {"hazard_class": "demo_low", "value": 2.0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "value": 4.0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "value": 8.0, "ref": "DEMO: valor ficticio, sin fuente normativa"}
       ]
     },
     "hydraulics.design_area": {
       "keys": ["hazard_class"],
       "value_unit": "m2",
       "rows": [
-        { "hazard_class": "demo_low", "value": 24.0, "ref": "DEMO: valor ficticio" },
-        { "hazard_class": "demo_medium", "value": 36.0, "ref": "DEMO: valor ficticio" },
-        { "hazard_class": "demo_high", "value": 48.0, "ref": "DEMO: valor ficticio" }
+        {"hazard_class": "demo_low", "value": 24.0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "value": 36.0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "value": 48.0, "ref": "DEMO: valor ficticio, sin fuente normativa"}
       ]
     },
     "hydraulics.supply_duration": {
       "keys": ["hazard_class"],
       "value_unit": "min",
       "rows": [
-        { "hazard_class": "demo_low", "value": 10, "ref": "DEMO: valor ficticio" },
-        { "hazard_class": "demo_medium", "value": 20, "ref": "DEMO: valor ficticio" },
-        { "hazard_class": "demo_high", "value": 30, "ref": "DEMO: valor ficticio" }
+        {"hazard_class": "demo_low", "value": 10, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "value": 20, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "value": 30, "ref": "DEMO: valor ficticio, sin fuente normativa"}
+      ]
+    },
+    "extinguishers.compat": {
+      "keys": ["agent", "fire_class"],
+      "value_unit": "-",
+      "rows": [
+        {"agent": "water", "fire_class": "A", "value": 1, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"agent": "water", "fire_class": "B", "value": 0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"agent": "water", "fire_class": "C", "value": 0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"agent": "foam", "fire_class": "A", "value": 1, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"agent": "foam", "fire_class": "B", "value": 1, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"agent": "foam", "fire_class": "C", "value": 0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"agent": "powder_abc", "fire_class": "A", "value": 1, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"agent": "powder_abc", "fire_class": "B", "value": 1, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"agent": "powder_abc", "fire_class": "C", "value": 1, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"agent": "co2", "fire_class": "A", "value": 0, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"agent": "co2", "fire_class": "B", "value": 1, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"agent": "co2", "fire_class": "C", "value": 1, "ref": "DEMO: valor ficticio, sin fuente normativa"}
+      ]
+    },
+    "extinguishers.max_travel_distance": {
+      "keys": ["hazard_class", "fire_class"],
+      "value_unit": "m",
+      "rows": [
+        {"hazard_class": "demo_low", "fire_class": "A", "value": 20, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_low", "fire_class": "B", "value": 15, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_low", "fire_class": "C", "value": 15, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "fire_class": "A", "value": 15, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "fire_class": "B", "value": 12, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "fire_class": "C", "value": 12, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "fire_class": "A", "value": 10, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "fire_class": "B", "value": 9, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "fire_class": "C", "value": 9, "ref": "DEMO: valor ficticio, sin fuente normativa"}
+      ]
+    },
+    "extinguishers.min_rating": {
+      "keys": ["hazard_class", "fire_class"],
+      "value_unit": "-",
+      "rows": [
+        {"hazard_class": "demo_low", "fire_class": "A", "value": 1, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_low", "fire_class": "B", "value": 1, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_low", "fire_class": "C", "value": 1, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "fire_class": "A", "value": 2, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "fire_class": "B", "value": 2, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "fire_class": "C", "value": 2, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "fire_class": "A", "value": 3, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "fire_class": "B", "value": 3, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "fire_class": "C", "value": 3, "ref": "DEMO: valor ficticio, sin fuente normativa"}
+      ]
+    },
+    "extinguishers.max_area_per_unit": {
+      "keys": ["hazard_class", "fire_class"],
+      "value_unit": "m2",
+      "rows": [
+        {"hazard_class": "demo_low", "fire_class": "A", "value": 100, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_low", "fire_class": "B", "value": 100, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_low", "fire_class": "C", "value": 100, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "fire_class": "A", "value": 80, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "fire_class": "B", "value": 80, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_medium", "fire_class": "C", "value": 80, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "fire_class": "A", "value": 50, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "fire_class": "B", "value": 50, "ref": "DEMO: valor ficticio, sin fuente normativa"},
+        {"hazard_class": "demo_high", "fire_class": "C", "value": 50, "ref": "DEMO: valor ficticio, sin fuente normativa"}
       ]
     }
   },
-  "validity": { "effective_date": "2026-10-28", "expires": null },
-  "authorship": {
-    "author": "VIGIX (contratista)",
-    "reviewer": "",
-    "date": "2026-10-28",
-    "approval_status": "borrador",
-    "approval_ref": "",
-    "sha256": ""
-  },
+  "validity": {"effective_date": "2026-10-28", "expires": null},
+  "authorship": {"author": "VIGIX (contratista)", "reviewer": "", "date": "2026-10-28", "approval_status": "borrador", "approval_ref": "", "sha256": ""},
   "test_cases": [],
   "changelog": [
-    { "version": "0.1.0", "date": "2026-10-28", "change": "Creación del perfil de demostración (hidráulica). Sin valor normativo." }
+    {"version": "0.1.0", "date": "2026-10-28", "change": "Perfil de demostración (hidráulica y extintores). Sin valor normativo."}
   ],
-  "compatibility": { "supersedes": null, "min_engine": "0.1.0", "notes": "Perfil de demostración: no usar para proyectos reales." }
+  "compatibility": {"supersedes": null, "min_engine": "0.1.0", "notes": "Perfil de demostración: no usar para proyectos reales."}
 }

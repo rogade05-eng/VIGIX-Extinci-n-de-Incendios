@@ -16,6 +16,8 @@
 #![allow(clippy::result_large_err)]
 
 pub mod calc;
+pub mod extinguishers;
+pub mod geometry;
 pub mod hash;
 pub mod hydraulics;
 pub mod issues;

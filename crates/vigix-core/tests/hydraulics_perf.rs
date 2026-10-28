@@ -24,7 +24,14 @@ fn grid(w: usize, h: usize, devices: usize) -> Network {
         placed += 1;
     }
     let r_of = |d: f64, len: f64| 6.05e5 * len / (120f64.powf(1.85) * d.powf(4.87));
-    let mut links = vec![Link { id: "FEED".into(), from: 0, to: 1, kind: LinkKind::Power { r: r_of(200.0, 10.0), n: 1.85 }, check_valve: false, q0_lpm: 1000.0 }];
+    let mut links = vec![Link {
+        id: "FEED".into(),
+        from: 0,
+        to: 1,
+        kind: LinkKind::Power { r: r_of(200.0, 10.0), n: 1.85 },
+        check_valve: false,
+        q0_lpm: 1000.0,
+    }];
     let id = |i: usize, j: usize| 1 + i * w + j;
     let mut k = 0;
     for i in 0..h {
@@ -32,11 +39,25 @@ fn grid(w: usize, h: usize, devices: usize) -> Network {
             // diámetros decrecientes con la distancia a la fuente
             let d = if i == 0 || j == 0 { 150.0 } else { 80.0 };
             if j + 1 < w {
-                links.push(Link { id: format!("H{}", k), from: id(i, j), to: id(i, j + 1), kind: LinkKind::Power { r: r_of(d, 3.0), n: 1.85 }, check_valve: false, q0_lpm: 100.0 });
+                links.push(Link {
+                    id: format!("H{}", k),
+                    from: id(i, j),
+                    to: id(i, j + 1),
+                    kind: LinkKind::Power { r: r_of(d, 3.0), n: 1.85 },
+                    check_valve: false,
+                    q0_lpm: 100.0,
+                });
                 k += 1;
             }
             if i + 1 < h {
-                links.push(Link { id: format!("V{}", k), from: id(i, j), to: id(i + 1, j), kind: LinkKind::Power { r: r_of(d, 3.0), n: 1.85 }, check_valve: false, q0_lpm: 100.0 });
+                links.push(Link {
+                    id: format!("V{}", k),
+                    from: id(i, j),
+                    to: id(i + 1, j),
+                    kind: LinkKind::Power { r: r_of(d, 3.0), n: 1.85 },
+                    check_valve: false,
+                    q0_lpm: 100.0,
+                });
                 k += 1;
             }
         }
@@ -100,11 +121,24 @@ fn cadena_de_5000_nodos_en_serie_peor_caso_para_gradiente_conjugado() {
     let n = 5000;
     let mut nodes = vec![Node { id: "SRC".into(), elevation_m: 0.0, fixed_pressure_bar: Some(30.0), demand_lpm: 0.0, device_k: None }];
     for i in 0..n {
-        nodes.push(Node { id: format!("C{}", i), elevation_m: 0.0, fixed_pressure_bar: None, demand_lpm: 0.0, device_k: if i % 10 == 9 { Some(50.0) } else { None } });
+        nodes.push(Node {
+            id: format!("C{}", i),
+            elevation_m: 0.0,
+            fixed_pressure_bar: None,
+            demand_lpm: 0.0,
+            device_k: if i % 10 == 9 { Some(50.0) } else { None },
+        });
     }
     let mut links = Vec::new();
     for i in 0..n {
-        links.push(Link { id: format!("L{}", i), from: i, to: i + 1, kind: LinkKind::Power { r: r_of(100.0, 3.0), n: 1.85 }, check_valve: false, q0_lpm: 100.0 });
+        links.push(Link {
+            id: format!("L{}", i),
+            from: i,
+            to: i + 1,
+            kind: LinkKind::Power { r: r_of(100.0, 3.0), n: 1.85 },
+            check_valve: false,
+            q0_lpm: 100.0,
+        });
     }
     timed("cadena", &Network { nodes, links, gamma: 0.0980665 });
 }
@@ -119,13 +153,33 @@ fn peine_ramificado_5100_nodos() {
     for i in 0..m {
         nodes.push(Node { id: format!("M{}", i), elevation_m: 3.0, fixed_pressure_bar: None, demand_lpm: 0.0, device_k: None });
         let mi = nodes.len() - 1;
-        links.push(Link { id: format!("PM{}", i), from: prev, to: mi, kind: LinkKind::Power { r: r_of(150.0, 3.0), n: 1.85 }, check_valve: false, q0_lpm: 800.0 });
+        links.push(Link {
+            id: format!("PM{}", i),
+            from: prev,
+            to: mi,
+            kind: LinkKind::Power { r: r_of(150.0, 3.0), n: 1.85 },
+            check_valve: false,
+            q0_lpm: 800.0,
+        });
         prev = mi;
         let mut bprev = mi;
         for j in 0..b {
-            nodes.push(Node { id: format!("B{}_{}", i, j), elevation_m: 3.0, fixed_pressure_bar: None, demand_lpm: 0.0, device_k: if j == b - 1 || j % 7 == 6 { Some(80.0) } else { None } });
+            nodes.push(Node {
+                id: format!("B{}_{}", i, j),
+                elevation_m: 3.0,
+                fixed_pressure_bar: None,
+                demand_lpm: 0.0,
+                device_k: if j == b - 1 || j % 7 == 6 { Some(80.0) } else { None },
+            });
             let bi = nodes.len() - 1;
-            links.push(Link { id: format!("PB{}_{}", i, j), from: bprev, to: bi, kind: LinkKind::Power { r: r_of(50.0, 3.0), n: 1.85 }, check_valve: false, q0_lpm: 50.0 });
+            links.push(Link {
+                id: format!("PB{}_{}", i, j),
+                from: bprev,
+                to: bi,
+                kind: LinkKind::Power { r: r_of(50.0, 3.0), n: 1.85 },
+                check_valve: false,
+                q0_lpm: 50.0,
+            });
             bprev = bi;
         }
     }
