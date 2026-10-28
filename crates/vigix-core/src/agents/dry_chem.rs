@@ -1,6 +1,7 @@
 //! Polvo químico (contrato 5.7).
 //!  * `dry_chemical.total_flooding.v1`:     W = V * tasa(agente, riesgo) + A_abertura * factor(agente)
 //!  * `dry_chemical.local_application.v1`:  W = tasa[kg/min/m2] * A * t[min]
+//!
 //! Verifica además que las boquillas puedan descargar la masa dentro del tiempo de descarga.
 
 use super::{occupied_safety, sys_scope, Calc};

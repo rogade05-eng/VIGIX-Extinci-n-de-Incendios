@@ -337,6 +337,8 @@ fn rects_of(g: &Grid, cells: &[(usize, usize)]) -> Vec<Json> {
     out
 }
 
+type Candidate = ((usize, usize), Vec<(usize, usize)>);
+
 struct Req {
     max_travel: Param,
     min_rating: Option<Param>,
@@ -420,8 +422,7 @@ pub fn run(project: &Json, profile: &Profile, suggest: Option<&Json>) -> CalcOut
                     }
                 }
                 Some("door") => {
-                    if let (Some(a), Some(b)) = (read_pts(&mut rd, &es, "pts"), Some(())) {
-                        let _ = b;
+                    if let Some(a) = read_pts(&mut rd, &es, "pts") {
                         if a.len() == 2 {
                             geo.doors.push((a[0], a[1]));
                         } else {
@@ -813,7 +814,7 @@ pub fn run(project: &Json, profile: &Profile, suggest: Option<&Json>) -> CalcOut
             }
         }
     }
-    issues.extend(rd.issues.drain(..));
+    issues.append(&mut rd.issues);
     trace.push(trace_step(
         "travel_distance",
         "d(x) = camino mínimo en rejilla (8 vecinos, sin cortar esquinas, muros bloqueados, puertas abiertas); cubierta si d <= D_max",
@@ -904,7 +905,7 @@ fn greedy_suggest(
     let _ = base;
     let mut chosen: Vec<Pt> = Vec::new();
     while !remaining.is_empty() && chosen.len() < max_units {
-        let mut best: Option<((usize, usize), Vec<(usize, usize)>)> = None;
+        let mut best: Option<Candidate> = None;
         for &c in &cands {
             let d = g.dijkstra(&[c], dmax);
             let newly: Vec<(usize, usize)> = remaining.iter().filter(|&&(i, j)| d[j * g.nx + i].is_finite()).cloned().collect();
