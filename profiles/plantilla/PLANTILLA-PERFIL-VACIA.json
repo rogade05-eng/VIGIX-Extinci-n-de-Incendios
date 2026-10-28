@@ -1,0 +1,97 @@
+{
+  "_ayuda": "PLANTILLA VACÍA de perfil normativo (esquema vigix.profile/1). El software NO inventa valores: complete cada parámetro con su valor, unidad y referencia (capítulo/sección/tabla de la fuente autorizada, sin copiar texto protegido). Elimine los campos que empiezan por _ayuda al terminar. Cambie 'demo' a false solo si el perfil es real. Selle con: vigix-cli seal-profile <archivo>. La aprobación (authorship.approval_status = aprobado) la escribe el especialista designado: el software solo verifica integridad y completitud.",
+  "schema": "vigix.profile/1",
+  "profile_code": null,
+  "profile_version": null,
+  "demo": false,
+  "title": { "es": null, "en": null },
+  "family": null,
+  "_ayuda_family": "NFPA | EN-ISO | NACIONAL-LOCAL | OTRA",
+  "country": null,
+  "region": null,
+  "authority": null,
+  "language": "es",
+  "unit_system": "SI",
+  "sources": [
+    {
+      "id": "S1",
+      "body": null,
+      "code": null,
+      "title": null,
+      "edition": null,
+      "effective_date": null,
+      "amendments": [],
+      "license_note": null
+    }
+  ],
+  "scope": {
+    "_ayuda_systems": "Tipos cubiertos: portable_extinguishers, wet_pipe_sprinkler, dry_pipe_sprinkler, preaction_sprinkler, deluge_sprinkler, water_spray, water_mist, standpipe_hose, private_hydrant, fire_pump, water_tank, foam, foam_water, gas_co2, gas_clean_agent, gas_inert, dry_chemical, wet_chemical_kitchen, condensed_aerosol, cause_effect",
+    "systems": [],
+    "exclusions": []
+  },
+  "methods": {
+    "_ayuda": "Identificadores de método admitidos por el motor. Hidráulica: hydraulics.friction = hazen_williams.power_law_si.v1 | hazen_williams.power_law_us.v1; hydraulics.fittings = equivalent_length_table.v1 | equivalent_length_table_c_scaled.v1. Extintores: extinguishers.coverage = travel_distance_only.v1 | travel_distance_and_area_per_unit.v1 | travel_distance_and_area_per_rating.v1. Espuma: foam.surface = foam.surface_application.v1; foam.high_expansion = foam.high_expansion_flooding.v1. Gases: gas.clean_agent = gas.halocarbon_total_flooding.v1; gas.inert = gas.inert_total_flooding.v1; gas.co2 = gas.co2_total_flooding.v1. Polvo: dry_chemical.total_flooding = dry_chemical.total_flooding.v1; dry_chemical.local_application = dry_chemical.local_application.v1. Cocinas: wet_chemical.kitchen = wet_chemical.listing_based.v1. Aerosol: aerosol.total_flooding = aerosol.total_flooding.v1"
+  },
+  "parameters": {
+    "_ayuda": "Cada hoja numérica: {\"value\": n, \"unit\": \"u\", \"ref\": \"fuente:sección\"}; booleana: {\"flag\": true|false, \"ref\": ...}; texto: {\"text\": \"...\", \"ref\": ...}. Rutas que lee el motor:",
+    "hydraulics": {
+      "fluid": { "density": { "value": null, "unit": "kg/m3", "ref": null } },
+      "friction": {
+        "coefficient": { "value": null, "unit": "-", "ref": null },
+        "exponent_flow": { "value": null, "unit": "-", "ref": null },
+        "exponent_diameter": { "value": null, "unit": "-", "ref": null }
+      },
+      "supply": { "curve_exponent": { "value": null, "unit": "-", "ref": null } },
+      "limits": { "max_velocity": { "value": null, "unit": "m/s", "ref": null } },
+      "fittings": { "c_reference": { "value": null, "unit": "-", "ref": null } }
+    },
+    "extinguishers": { "max_mount_height": { "value": null, "unit": "m", "ref": null } },
+    "foam": {
+      "reserve_factor": { "value": null, "unit": "-", "ref": null },
+      "he_shrinkage_factor": { "value": null, "unit": "-", "ref": null },
+      "he_leakage_factor": { "value": null, "unit": "-", "ref": null }
+    },
+    "gas": {
+      "altitude_correction_applies": { "flag": null, "ref": null },
+      "occupied_limit": { "text": null, "ref": null },
+      "min_predischarge_delay": { "value": null, "unit": "s", "ref": null },
+      "clean_agent": { "max_discharge_time": { "value": null, "unit": "s", "ref": null }, "hold_time": { "value": null, "unit": "min", "ref": null } },
+      "inert": {
+        "max_discharge_time": { "value": null, "unit": "s", "ref": null },
+        "hold_time": { "value": null, "unit": "min", "ref": null },
+        "log_constant": { "value": null, "unit": "-", "ref": null }
+      },
+      "co2": { "max_discharge_time": { "value": null, "unit": "s", "ref": null }, "hold_time": { "value": null, "unit": "min", "ref": null } }
+    },
+    "dry_chemical": {
+      "max_discharge_time": { "value": null, "unit": "s", "ref": null },
+      "local_min_time": { "value": null, "unit": "s", "ref": null }
+    },
+    "kitchen": { "fuel_shutoff_required": { "flag": null, "ref": null } }
+  },
+  "tables": {
+    "_ayuda": "Cada tabla: {keys:[...], value_unit, rows:[{<claves>, value, ref}]}. Tablas por intervalo usan from/to (to_inclusive en el último). Tablas que lee el motor: hydraulics.fittings_equiv_length[fitting; from/to=diámetro mm; m], hydraulics.design_density[hazard_class; L/min/m2], hydraulics.design_area[hazard_class; m2], hydraulics.supply_duration[hazard_class; min], extinguishers.compat[agent,fire_class; 1/0], extinguishers.max_travel_distance[hazard_class,fire_class; m], extinguishers.min_rating[hazard_class,fire_class], extinguishers.max_area_per_unit[hazard_class,fire_class; m2] (o max_area_per_rating), foam.application_rate[application,concentrate_type; L/min/m2], foam.discharge_duration[application,hazard_class; min], foam.he_submergence_time[hazard_class; min], foam.he_operating_time[hazard_class; min], gas.k1[agent; m3/kg], gas.k2[agent; m3/kg/K], gas.vs_reference[agent; m3/kg], gas.noael[agent; %], gas.loael[agent; %], gas.min_design_concentration[agent,hazard_class; %], gas.altitude_correction[family; from/to=altitud m; -], gas.co2.flooding_factor[hazard_class; kg/m3], gas.co2.material_conversion_factor[material; -], dry_chemical.flooding_rate[agent,hazard_class; kg/m3], dry_chemical.opening_factor[agent; kg/m2], dry_chemical.local_rate[agent,hazard_class; kg/min/m2], aerosol.design_factor[hazard_class; -]"
+  },
+  "validity": { "effective_date": null, "expires": null },
+  "authorship": {
+    "author": null,
+    "reviewer": null,
+    "date": null,
+    "approval_status": "borrador",
+    "approval_ref": null,
+    "sha256": null
+  },
+  "test_cases": [
+    {
+      "_ayuda": "Casos de prueba INDEPENDIENTES por sistema cubierto. module: extinguishers|hydraulic|foam|gas|dry_chemical|wet_chemical|aerosol|cause_effect. input según módulo (project | network+scenario+mode | system). expected: [{path, value, tolerance_rel}]",
+      "id": null,
+      "system": null,
+      "module": null,
+      "input": {},
+      "expected": [],
+      "source": null
+    }
+  ],
+  "changelog": [ { "version": null, "date": null, "change": null } ],
+  "compatibility": { "supersedes": null, "min_engine": "0.1.0", "notes": null }
+}

@@ -211,6 +211,18 @@ impl Reader {
         }
     }
 
+    /// Objeto opcional: ausente o `null` => `None` sin incidencia; un tipo equivocado sí es incidencia.
+    pub fn opt_obj<'a>(&mut self, s: &Scope<'a>, key: &str) -> Option<Scope<'a>> {
+        match s.j.field(key) {
+            Json::Null => None,
+            Json::Obj(_) => Some(s.child(key)),
+            _ => {
+                self.fail("data.type", s, key);
+                None
+            }
+        }
+    }
+
     /// Texto que debe pertenecer a un conjunto cerrado.
     pub fn enum_str<'a>(&mut self, s: &Scope<'a>, key: &str, allowed: &[&str]) -> Option<&'a str> {
         let v = self.str(s, key)?;
@@ -273,6 +285,22 @@ mod tests {
         assert_eq!(r.enum_str(&s, "z", &["pipe", "pump"]), None);
         assert_eq!(r.issues[0].code, "data.bad_enum");
         assert_eq!(r.issues[0].params.get("allowed").map(String::as_str), Some("pipe|pump"));
+    }
+
+    #[test]
+    fn objeto_opcional_no_bloquea_si_falta() {
+        let j = Json::parse(r#"{"a":{"x":1},"n":null,"mal":5}"#).unwrap();
+        let s = Scope::new(&j, "");
+        let mut r = Reader::new("x");
+        assert!(r.opt_obj(&s, "a").is_some());
+        assert!(r.opt_obj(&s, "n").is_none());
+        assert!(r.opt_obj(&s, "ausente").is_none());
+        assert!(r.issues.is_empty(), "un objeto opcional ausente no es un dato faltante");
+        assert!(r.opt_obj(&s, "mal").is_none());
+        assert_eq!(r.issues[0].code, "data.type");
+        // el accesor obligatorio SÍ bloquea
+        assert!(r.obj(&s, "ausente").is_none());
+        assert!(r.issues.iter().any(|i| i.code == "data.missing"));
     }
 
     #[test]

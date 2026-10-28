@@ -35,6 +35,7 @@ pub mod permissions;
 pub mod profile;
 pub mod project;
 pub mod reader;
+pub mod selftest;
 pub mod store;
 pub mod timeutil;
 pub mod units;

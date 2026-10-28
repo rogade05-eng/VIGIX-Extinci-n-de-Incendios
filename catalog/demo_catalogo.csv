@@ -1,0 +1,6 @@
+id,category,description,manufacturer,model,unit,price,currency,source,status,notes
+DEMO-SPR-80,dispositivo,Rociador de demostración K=80,,,u,,,,demo,Sin precio: asigne el suyo
+DEMO-TUB-65,tuberia,Tubería de demostración 65 mm,,,m,,,,demo,Sin precio: asigne el suyo
+DEMO-TUB-40,tuberia,Tubería de demostración 40 mm,,,m,,,,demo,Sin precio: asigne el suyo
+DEMO-EXT-ABC,extintor,Extintor polvo ABC de demostración,,,u,,,,demo,Sin precio: asigne el suyo
+DEMO-HOR,mano_de_obra,Hora de mano de obra (ejemplo),,,h,,,,demo,Sin precio: asigne el suyo

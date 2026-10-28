@@ -39,7 +39,7 @@ pub fn run(sys: &Json, profile: &Profile, base: &str) -> CalcOutput {
     };
     let Some(values) = values else { return c.finish("foam", fp, Json::Null) };
     // tanque de concentrado
-    if let Some(tank) = c.rd.obj(&s, "tank") {
+    if let Some(tank) = c.rd.opt_obj(&s, "tank") {
         if let Some(cap) = c.rd.f64_pos(&tank, "capacity_l") {
             let stored = values.at("volumes.concentrate_stored_l").and_then(Json::as_f64).unwrap_or(0.0);
             if cap + 1e-9 < stored {
@@ -111,7 +111,7 @@ fn surface(
     // dosificador
     let mut proportioner = Json::Null;
     let mut inlet_pressure = Json::Null;
-    if let Some(p) = c.rd.obj(s, "proportioner") {
+    if let Some(p) = c.rd.opt_obj(s, "proportioner") {
         let (lo, hi, pin) =
             (c.rd.f64_pos(&p, "min_flow_lpm"), c.rd.f64_pos(&p, "max_flow_lpm"), c.rd.f64_nonneg(&p, "min_inlet_pressure_bar"));
         if let (Some(lo), Some(hi), Some(pin)) = (lo, hi, pin) {
@@ -257,6 +257,20 @@ mod tests {
         assert!((val(v, "hydraulic_demand.pressure_bar") - 7.0).abs() < 1e-12);
         assert!(o.params_used.iter().all(|p| p.reference.starts_with("DEMO")));
         assert!(!o.issues.iter().any(|i| i.severity >= Severity::Error));
+    }
+
+    #[test]
+    fn tanque_dosificador_y_mangueras_son_opcionales() {
+        let mut s = surface_sys();
+        if let Json::Obj(m) = &mut s {
+            m.remove("tank");
+            m.remove("proportioner");
+            m.remove("hose_streams");
+        }
+        let o = run(&s, &demo(), "x");
+        assert_eq!(o.status, Status::Ok, "{:?}", o.issues);
+        assert!((val(&o.values, "volumes.concentrate_stored_l") - 90.0 * 1.2).abs() < 1e-9);
+        assert!(o.values.field("proportioner").is_null());
     }
 
     #[test]

@@ -73,7 +73,7 @@ pub fn run(sys: &Json, profile: &Profile, base: &str) -> CalcOutput {
     // plenum y ducto: requeridos por el listado del fabricante
     let mut zones_json = Vec::new();
     for zone in ["plenum", "duct"] {
-        if let Some(z) = c.rd.obj(&s, zone) {
+        if let Some(z) = c.rd.opt_obj(&s, zone) {
             let req = c.rd.f64_nonneg(&z, "required_nozzles");
             let prov = c.rd.f64_nonneg(&z, "nozzle_count");
             let fnum = c.rd.f64_nonneg(&z, "flow_number_each");

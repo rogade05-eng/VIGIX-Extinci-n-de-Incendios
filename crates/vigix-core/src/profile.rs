@@ -710,6 +710,16 @@ impl Registry {
         self.profiles.iter().find(|p| p.code() == code && p.version() == version)
     }
 
+    /// Degrada un perfil a "no verificado" añadiendo el motivo (p. ej. fallo del autotest).
+    pub fn downgrade(&mut self, code: &str, version: &str, reason: Issue) {
+        if let Some(p) = self.profiles.iter_mut().find(|p| p.code() == code && p.version() == version) {
+            if p.level == Level::Verified {
+                p.level = Level::Unverified;
+            }
+            p.issues.push(reason);
+        }
+    }
+
     pub fn list(&self) -> &[Profile] {
         &self.profiles
     }
