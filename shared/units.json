@@ -45,9 +45,21 @@
         "mass",
         "kg"
       ],
+      "mass_density_small": [
+        "mass_density_small",
+        "g/m3"
+      ],
       "mass_flow": [
         "mass_flow",
         "kg/s"
+      ],
+      "mass_flux": [
+        "mass_flux",
+        "kg/min/m2"
+      ],
+      "mass_per_area": [
+        "mass_per_area",
+        "kg/m2"
       ],
       "pressure": [
         "pressure",
@@ -56,6 +68,10 @@
       "specific_volume": [
         "specific_volume",
         "m3/kg"
+      ],
+      "specific_volume_slope": [
+        "specific_volume_slope",
+        "m3/kg/K"
       ],
       "temperature": [
         "temperature",
@@ -123,9 +139,21 @@
         "mass",
         "lb"
       ],
+      "mass_density_small": [
+        "mass_density_small",
+        "oz/ft3"
+      ],
       "mass_flow": [
         "mass_flow",
         "lb/s"
+      ],
+      "mass_flux": [
+        "mass_flux",
+        "lb/min/ft2"
+      ],
+      "mass_per_area": [
+        "mass_per_area",
+        "lb/ft2"
       ],
       "pressure": [
         "pressure",
@@ -134,6 +162,10 @@
       "specific_volume": [
         "specific_volume",
         "ft3/lb"
+      ],
+      "specific_volume_slope": [
+        "specific_volume_slope",
+        "ft3/lb/F"
       ],
       "temperature": [
         "temperature",
@@ -242,11 +274,32 @@
         "lb": 0.45359237
       }
     },
+    "mass_density_small": {
+      "canonical": "g/m3",
+      "units": {
+        "g/m3": 1.0,
+        "oz/ft3": 1001.1539608725087
+      }
+    },
     "mass_flow": {
       "canonical": "kg/s",
       "units": {
         "kg/s": 1.0,
         "lb/s": 0.45359237
+      }
+    },
+    "mass_flux": {
+      "canonical": "kg/min/m2",
+      "units": {
+        "kg/min/m2": 1.0,
+        "lb/min/ft2": 4.88242763638305
+      }
+    },
+    "mass_per_area": {
+      "canonical": "kg/m2",
+      "units": {
+        "kg/m2": 1.0,
+        "lb/ft2": 4.88242763638305
       }
     },
     "pressure": {
@@ -266,6 +319,13 @@
       "units": {
         "ft3/lb": 0.06242796057614461,
         "m3/kg": 1.0
+      }
+    },
+    "specific_volume_slope": {
+      "canonical": "m3/kg/K",
+      "units": {
+        "ft3/lb/F": 0.1123703290370603,
+        "m3/kg/K": 1.0
       }
     },
     "temperature": {

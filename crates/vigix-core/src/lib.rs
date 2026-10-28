@@ -15,6 +15,7 @@
 // accesores de perfil; el camino de error no es crítico en rendimiento.
 #![allow(clippy::result_large_err)]
 
+pub mod agents;
 pub mod calc;
 pub mod extinguishers;
 pub mod geometry;

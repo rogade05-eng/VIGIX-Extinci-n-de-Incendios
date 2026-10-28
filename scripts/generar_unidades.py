@@ -47,6 +47,13 @@ quantities = {
     "density": {"canonical": "kg/m3", "units": {"kg/m3": 1.0, "lb/ft3": f(LB / FT3)}},
     "specific_volume": {"canonical": "m3/kg", "units": {"m3/kg": 1.0, "ft3/lb": f(FT3 / LB)}},
     "mass_flow": {"canonical": "kg/s", "units": {"kg/s": 1.0, "lb/s": f(LB)}},
+    # Pendiente del volumen específico con la temperatura (S = k1 + k2*T): 1 ft3/lb/F = (ft3/lb)/(5/9) m3/kg/K
+    "specific_volume_slope": {"canonical": "m3/kg/K", "units": {"m3/kg/K": 1.0, "ft3/lb/F": f(FT3 / LB * D(9) / D(5))}},
+    # Flujo másico por área (polvo químico, aplicación local)
+    "mass_flux": {"canonical": "kg/min/m2", "units": {"kg/min/m2": 1.0, "lb/min/ft2": f(LB / FT2)}},
+    # Masa por volumen y masa por área (caudal de diseño, factores de inundación)
+    "mass_density_small": {"canonical": "g/m3", "units": {"g/m3": 1.0, "oz/ft3": f(D("28.349523125") / FT3)}},
+    "mass_per_area": {"canonical": "kg/m2", "units": {"kg/m2": 1.0, "lb/ft2": f(LB / FT2)}},
     # Densidad de aplicación por área: 1 L/min/m2 == 1 mm/min
     "application_rate": {"canonical": "L/min/m2", "units": {
         "L/min/m2": 1.0, "mm/min": 1.0, "gpm/ft2": f(GAL * 1000 / FT2)}},
@@ -71,6 +78,8 @@ display = {
         "specific_volume": ["specific_volume", "m3/kg"], "mass_flow": ["mass_flow", "kg/s"],
         "application_rate": ["application_rate", "L/min/m2"], "k_factor": ["k_factor", "L/min/bar^0.5"],
         "concentration": ["concentration", "%"], "angle": ["angle", "deg"], "dimensionless": ["dimensionless", "-"],
+        "mass_flux": ["mass_flux", "kg/min/m2"], "mass_per_area": ["mass_per_area", "kg/m2"],
+        "specific_volume_slope": ["specific_volume_slope", "m3/kg/K"], "mass_density_small": ["mass_density_small", "g/m3"],
     },
     "US": {
         "length": ["length", "ft"], "length_small": ["length", "in"], "area": ["area", "ft2"],
@@ -80,6 +89,8 @@ display = {
         "specific_volume": ["specific_volume", "ft3/lb"], "mass_flow": ["mass_flow", "lb/s"],
         "application_rate": ["application_rate", "gpm/ft2"], "k_factor": ["k_factor", "gpm/psi^0.5"],
         "concentration": ["concentration", "%"], "angle": ["angle", "deg"], "dimensionless": ["dimensionless", "-"],
+        "mass_flux": ["mass_flux", "lb/min/ft2"], "mass_per_area": ["mass_per_area", "lb/ft2"],
+        "specific_volume_slope": ["specific_volume_slope", "ft3/lb/F"], "mass_density_small": ["mass_density_small", "oz/ft3"],
     },
 }
 
